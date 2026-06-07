@@ -4,7 +4,7 @@ const PageTransaksi = `
         <div class="header-left" style="display: flex; align-items: center; gap: 1rem;">
             <button class="mobile-menu-btn" onclick="toggleMobileMenu()">☰</button>
             <div class="logo" onclick="navigateTo('home')" style="cursor: pointer; display: flex; align-items: center; gap: 0.75rem;">
-                <img src="public/images/logo.jpeg" alt="Sparing-In" class="logo-img" style="height: 35px; border-radius: 4px;">
+                <img src="assets/images/logo.jpeg" alt="Sparing-In" class="logo-img" style="height: 35px; border-radius: 4px;">
                 <span class="logo-text" style="font-size: 1.25rem; font-weight: 900; letter-spacing: 1px; color: #FFF; font-style: italic;">SPARING-IN</span>
             </div>
         </div>

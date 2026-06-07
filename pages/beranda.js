@@ -4,7 +4,7 @@ const PageBeranda = `
         <div class="header-left" style="display: flex; align-items: center; gap: 1rem;">
             <button class="mobile-menu-btn" onclick="toggleMobileMenu()">☰</button>
             <div class="logo" onclick="navigateTo('home')">
-                <img src="public/images/logo.jpeg" alt="Sparing-In" class="logo-img">
+                <img src="assets/images/logo.jpeg" alt="Sparing-In" class="logo-img">
                 <span class="logo-text">SPARING-IN</span>
             </div>
         </div>
