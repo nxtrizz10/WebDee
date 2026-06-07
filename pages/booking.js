@@ -11,8 +11,8 @@ const PageBooking = `
         <nav class="header-nav">
             <a class="nav-link" onclick="navigateTo('home')">Beranda</a>
             <a class="nav-link active" onclick="navigateTo('booking')">Booking Lapangan</a>
-            <a class="nav-link" onclick="void(0)">Cari Lawan</a>
-            <a class="nav-link" onclick="void(0)">Event</a>
+            <a class="nav-link" onclick="navigateTo('cari-lawan')">Cari Lawan</a>
+            <a class="nav-link" onclick="navigateTo('event')">Event</a>
             <a class="nav-link" onclick="navigateTo('transaksi')">Transaksi</a>
         </nav>
         <div class="header-right">
@@ -371,13 +371,4 @@ const PageBooking = `
         </div>
 
     </div><!-- /.container -->
-</div>
-
-
-<!-- ================================================================== -->
-<!-- MINIMAL JAVASCRIPT — Navigation, Login, Booking Logic Only         -->
-<!-- (Payment tabs are PURE CSS — no JS needed!)                        -->
-<!-- ================================================================== -->
-<div class="page" id="page-cari-lawan"></div>
-<div class="page" id="page-event">
 `;

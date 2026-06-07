@@ -1,7 +1,7 @@
 const demoAccounts = {
-        'admin@sparingin.com': { password: 'admin123',  name: 'Admin' },
-        'lando@email.com':     { password: 'lando123',  name: 'Lando' },
-        'user@email.com':      { password: 'user123',   name: 'User' }
+        'admin': { password: 'admin123',  name: 'Admin' },
+        'lando':     { password: 'lando123',  name: 'Lando' },
+        'christopher':      { password: 'christopher123',   name: 'Christopher' }
     };
 
 const venuesDB = [
@@ -32,4 +32,13 @@ const venuesDB = [
         { id: 'v15', name: 'Centro Padel Bintaro', sport: 'padel', lat: -6.278, lng: 106.718, loc: 'Bintaro Jaya', rating: 4.9, price: 250000, grad: 'linear-gradient(135deg, #0D3B21, #15803D)', emoji: '🎾', region: 'upj' },
         { id: 'v16', name: 'Nako Padel Club', sport: 'padel', lat: -6.295, lng: 106.725, loc: 'Sawah Lama, Bintaro', rating: 4.8, price: 200000, grad: 'linear-gradient(135deg, #0D3B21, #15803D)', emoji: '🎾', region: 'upj' },
         { id: 'v17', name: 'Padel Core Bintaro', sport: 'padel', lat: -6.290, lng: 106.720, loc: 'Ciputat, Bintaro', rating: 4.7, price: 220000, grad: 'linear-gradient(135deg, #0D3B21, #15803D)', emoji: '🎾', region: 'upj' }
+    ];
+
+    // Matchmaking Mock Data
+    const matchmakingDB = [
+        { id: 'm1', hostName: 'FC Garuda', sport: 'Futsal', sportIcon: '⚽', location: 'Arena A Sports Center', city: 'Jakarta', date: '25 Jun 2026', time: '19:00', level: 'Intermediate', type: 'individu', currentPlayers: 8, maxPlayers: 10 },
+        { id: 'm2', hostName: 'Bintaro Hoops', sport: 'Basket', sportIcon: '🏀', location: 'Bintaro Court', city: 'Tangerang', date: '26 Jun 2026', time: '20:00', level: 'Beginner', type: 'individu', currentPlayers: 3, maxPlayers: 10 },
+        { id: 'm3', hostName: 'Smash Bros', sport: 'Badminton', sportIcon: '🏸', location: 'Gor Ciledug', city: 'Tangerang', date: '27 Jun 2026', time: '16:00', level: 'Advanced', type: 'tim', currentPlayers: 1, maxPlayers: 1 },
+        { id: 'm4', hostName: 'Tangerang Padel', sport: 'Padel', sportIcon: '🎾', location: 'Padel Ciledug Raya', city: 'Tangerang', date: '28 Jun 2026', time: '08:00', level: 'Intermediate', type: 'individu', currentPlayers: 2, maxPlayers: 4 },
+        { id: 'm5', hostName: 'Jaksel Kicker', sport: 'Futsal', sportIcon: '⚽', location: 'Pancoran Soccer', city: 'Jakarta', date: '29 Jun 2026', time: '21:00', level: 'Beginner', type: 'tim', currentPlayers: 1, maxPlayers: 1 }
     ];

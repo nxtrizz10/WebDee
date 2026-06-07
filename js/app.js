@@ -136,6 +136,10 @@
             
             if(typeof renderTimeSlots === 'function') renderTimeSlots();
         }
+
+        if (page === 'cari-lawan' && typeof window.renderMatchFeed === 'function') {
+            window.renderMatchFeed();
+        }
     }
 
     // ═══════════════════════════════════════════
@@ -143,27 +147,28 @@
     // ═══════════════════════════════════════════
     function handleLogin(e) {
         e.preventDefault();
-        const email = document.getElementById('login-email').value.trim().toLowerCase();
+        const rawInput = document.getElementById('login-email').value.trim().toLowerCase();
         const pass  = document.getElementById('login-password').value;
         const errorBox  = document.getElementById('login-error');
         const errorText = document.getElementById('login-error-text');
 
-        if (!email || !pass) {
-            errorText.textContent = 'Silakan masukkan email dan password.';
+        if (!rawInput || !pass) {
+            errorText.textContent = 'Silakan masukkan username/email dan password.';
             errorBox.classList.add('show');
             return;
         }
 
-        const account = demoAccounts[email];
+        const username = rawInput.includes('@') ? rawInput.split('@')[0] : rawInput;
+        const account = demoAccounts[username];
         if (!account || account.password !== pass) {
-            errorText.textContent = 'Email atau password salah. Silakan coba lagi.';
+            errorText.textContent = 'Username/Email atau password salah. Silakan coba lagi.';
             errorBox.classList.add('show');
             return;
         }
 
         errorBox.classList.remove('show');
         loggedInUser = account.name;
-        currentEmail = email;
+        currentEmail = username;
         localStorage.setItem('sparingin_logged_in_email', currentEmail);
         
         // Cek apakah ada foto profil yang tersimpan di localStorage
@@ -196,7 +201,6 @@
         }
 
         // Update Profile Page Data
-        const username = email.split('@')[0];
         const profileNameEl = document.getElementById('profile-name-display');
         if(profileNameEl) profileNameEl.textContent = account.name.toUpperCase();
         
@@ -237,31 +241,58 @@
         if (file) {
             const reader = new FileReader();
             reader.onload = function(e) {
-                const imageUrl = e.target.result;
-                
-                // Update profile avatar
-                const profileAvatar = document.getElementById('profile-avatar-display');
-                if (profileAvatar) {
-                    profileAvatar.style.backgroundImage = `url(${imageUrl})`;
-                    profileAvatar.textContent = ''; // Hide initials
-                }
-                
-                // Update all header avatars
-                document.querySelectorAll('[id^="header-user-avatar"]').forEach(el => {
-                    el.style.backgroundImage = `url(${imageUrl})`;
-                    el.style.backgroundSize = 'cover';
-                    el.style.backgroundPosition = 'center';
-                    el.textContent = ''; // Hide initials
-                });
-                
-                // Simpan ke localStorage agar tidak hilang saat direfresh
-                if (currentEmail) {
-                    try {
-                        localStorage.setItem('sparingin_profile_pic_' + currentEmail, imageUrl);
-                    } catch(err) {
-                        console.warn('Gagal menyimpan foto ke localStorage, mungkin ukuran terlalu besar.');
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    const MAX_WIDTH = 400;
+                    const MAX_HEIGHT = 400;
+                    let width = img.width;
+                    let height = img.height;
+
+                    if (width > height) {
+                        if (width > MAX_WIDTH) {
+                            height *= MAX_WIDTH / width;
+                            width = MAX_WIDTH;
+                        }
+                    } else {
+                        if (height > MAX_HEIGHT) {
+                            width *= MAX_HEIGHT / height;
+                            height = MAX_HEIGHT;
+                        }
                     }
-                }
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+                    
+                    const compressedUrl = canvas.toDataURL('image/jpeg', 0.8);
+                    
+                    // Update profile avatar
+                    const profileAvatar = document.getElementById('profile-avatar-display');
+                    if (profileAvatar) {
+                        profileAvatar.style.backgroundImage = `url(${compressedUrl})`;
+                        profileAvatar.textContent = ''; // Hide initials
+                    }
+                    
+                    // Update all header avatars
+                    document.querySelectorAll('[id^="header-user-avatar"]').forEach(el => {
+                        el.style.backgroundImage = `url(${compressedUrl})`;
+                        el.style.backgroundSize = 'cover';
+                        el.style.backgroundPosition = 'center';
+                        el.textContent = ''; // Hide initials
+                    });
+                    
+                    // Simpan ke localStorage
+                    if (currentEmail) {
+                        try {
+                            localStorage.setItem('sparingin_profile_pic_' + currentEmail, compressedUrl);
+                        } catch(err) {
+                            console.warn('Gagal menyimpan foto ke localStorage:', err);
+                            alert('Gagal menyimpan foto! Mungkin ukurannya masih terlalu besar.');
+                        }
+                    }
+                };
+                img.src = e.target.result;
             }
             reader.readAsDataURL(file);
         }
@@ -458,17 +489,18 @@
         localStorage.setItem('sparingin_bookings', JSON.stringify(existingBookings));
 
         // Save invoice to Transaction History
-        let transactionHistory = JSON.parse(localStorage.getItem('sparingin_history') || '[]');
+        const historyKey = 'sparingin_history_' + currentEmail;
+        let transactionHistory = JSON.parse(localStorage.getItem(historyKey) || '[]');
         transactionHistory.push({
             id: id,
             sport: selectedSport,
             location: selectedLocation,
-            field: fieldNames[selectedField] || '-',
-            schedule: ds + ', ' + timeStr,
+            field: fieldNames[selectedField],
+            schedule: selectedTimes.join(', '),
             total: fmt(total),
             timestamp: now.getTime()
         });
-        localStorage.setItem('sparingin_history', JSON.stringify(transactionHistory));
+        localStorage.setItem(historyKey, JSON.stringify(transactionHistory));
 
         goToStep(4);
     }
@@ -805,6 +837,77 @@
         navs.forEach(nav => nav.classList.toggle('show'));
     }
 
+    // ==========================================================
+    // CARI LAWAN LOGIC
+    // ==========================================================
+    let currentMatchMode = 'individu';
+
+    window.setMatchMode = function(mode) {
+        currentMatchMode = mode;
+        const btnIndividu = document.getElementById('toggle-individu');
+        const btnTim = document.getElementById('toggle-tim');
+        if (btnIndividu) btnIndividu.classList.toggle('active', mode === 'individu');
+        if (btnTim) btnTim.classList.toggle('active', mode === 'tim');
+        if (typeof window.renderMatchFeed === 'function') window.renderMatchFeed();
+    };
+
+    window.renderMatchFeed = function() {
+        const container = document.getElementById('match-feed-container');
+        if (!container) return;
+
+        const locFilter = document.getElementById('filter-location')?.value || 'all';
+        const sportFilter = document.getElementById('filter-sport')?.value || 'all';
+        const levelFilter = document.getElementById('filter-level')?.value || 'all';
+
+        // Filter data
+        const matches = typeof matchmakingDB !== 'undefined' ? matchmakingDB.filter(m => {
+            const matchMode = m.type === currentMatchMode;
+            const matchLoc = locFilter === 'all' || m.city === locFilter;
+            const matchSport = sportFilter === 'all' || m.sport === sportFilter;
+            const matchLevel = levelFilter === 'all' || m.level === levelFilter;
+            return matchMode && matchLoc && matchSport && matchLevel;
+        }) : [];
+
+        if (matches.length === 0) {
+            container.innerHTML = '<p style="text-align:center; color:var(--text-muted); padding:2rem;">Tidak ada match yang tersedia untuk filter ini.</p>';
+            return;
+        }
+
+        container.innerHTML = matches.map(m => {
+            let actionBtn = '';
+            if (currentMatchMode === 'individu') {
+                actionBtn = `<button class="btn btn-join btn-join-primary" onclick="alert('Join individu di ${m.hostName}!')">JOIN INDIVIDU</button>`;
+            } else {
+                actionBtn = `<button class="btn btn-join btn-join-primary" onclick="alert('Tantang tim ${m.hostName}!')">TANTANG TIM INI</button>`;
+            }
+
+            return `
+                <div class="match-card">
+                    <div class="match-card-header">
+                        <div class="match-info-left">
+                            <div class="match-sport-icon">${m.sportIcon}</div>
+                            <div>
+                                <div class="match-host">${m.hostName}</div>
+                                <div class="match-location">📍 ${m.location}</div>
+                            </div>
+                        </div>
+                        <div class="match-badge ${m.level.toLowerCase()}">${m.level}</div>
+                    </div>
+                    
+                    <div class="match-details">
+                        <div class="detail-item">👥 ${m.currentPlayers}/${m.maxPlayers} ${currentMatchMode === 'tim' ? 'tim' : 'player'}</div>
+                        <div class="detail-item">📅 ${m.date}</div>
+                        <div class="detail-item">⏰ ${m.time}</div>
+                    </div>
+
+                    <div class="match-actions single">
+                        ${actionBtn}
+                    </div>
+                </div>
+            `;
+        }).join('');
+    };
+
     // ═══════════════════════════════════════════
     // RENDER TRANSAKSI (INVOICE HISTORY)
     // ═══════════════════════════════════════════
@@ -812,7 +915,8 @@
         const listContainer = document.getElementById('transaksi-list');
         if (!listContainer) return;
 
-        let history = JSON.parse(localStorage.getItem('sparingin_history') || '[]');
+        const historyKey = 'sparingin_history_' + currentEmail;
+        let history = JSON.parse(localStorage.getItem(historyKey) || '[]');
         
         if (history.length === 0) {
             listContainer.innerHTML = '<div style="text-align: center; color: var(--text-secondary); padding: 3rem;">Belum ada riwayat pemesanan.</div>';

@@ -1,22 +1,25 @@
 const PageProfile = `
-<!-- Profile App Header -->
-    <header class="app-header" style="padding: 1rem 2rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; background: var(--bg-surface);">
+<!-- ── App Header ── -->
+    <header id="app-header-profile">
         <div class="header-left" style="display: flex; align-items: center; gap: 1rem;">
             <button class="mobile-menu-btn" onclick="toggleMobileMenu()">☰</button>
-            <div class="logo" onclick="navigateTo('home')" style="cursor: pointer; display: flex; align-items: center; gap: 0.75rem;">
-                <img src="assets/images/logo.jpeg" alt="Sparing-In" class="logo-img" style="height: 35px; border-radius: 4px;">
-                <span class="logo-text" style="font-size: 1.25rem; font-weight: 900; letter-spacing: 1px; color: #FFF; font-style: italic;">SPARING-IN</span>
+            <div class="logo" onclick="navigateTo('home')">
+                <img src="assets/images/logo.jpeg" alt="Sparing-In" class="logo-img">
+                <span class="logo-text">SPARING-IN</span>
             </div>
         </div>
-        <nav class="header-nav" style="display: flex; gap: 1.5rem;">
-            <!-- Navigation links removed as requested -->
+        <nav class="header-nav" style="visibility: hidden;">
+            <a class="nav-link" onclick="navigateTo('home')">Beranda</a>
+            <a class="nav-link" onclick="navigateTo('booking')">Booking Lapangan</a>
+            <a class="nav-link" onclick="navigateTo('cari-lawan')">Cari Lawan</a>
+            <a class="nav-link" onclick="navigateTo('event')">Event</a>
+            <a class="nav-link" onclick="navigateTo('transaksi')">Transaksi</a>
         </nav>
-        <div class="header-right" style="display: flex; align-items: center; gap: 1rem;">
-            <div class="user-info" style="display: flex; align-items: center; gap: 0.75rem; padding: 0.3rem 0.5rem 0.3rem 0.75rem; border-radius: var(--radius-full); border: 1px solid var(--border);">
-                <span class="user-name" id="header-user-name-profile" style="font-size: 0.85rem; font-weight: 600; color: var(--text-secondary);">Halo, Admin</span>
-                <div class="user-avatar" id="header-user-avatar-profile" style="width: 30px; height: 30px; background: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.8rem;">A</div>
+        <div class="header-right">
+            <div class="user-info" style="border: 1px solid var(--border); padding: 0.3rem; border-radius: var(--radius-full);">
+                <div class="user-avatar" id="header-user-avatar-profile">A</div>
             </div>
-            <button class="btn-logout" onclick="handleLogout()" style="background: rgba(239, 68, 68, 0.1); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.2); padding: 0.5rem 1rem; border-radius: var(--radius-sm); font-size: 0.85rem; font-weight: 600; cursor: pointer;">Keluar</button>
+            <button class="btn-logout" onclick="handleLogout()">Keluar</button>
         </div>
     </header>
 
