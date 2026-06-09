@@ -64,6 +64,10 @@
             if (typeof renderVenues === 'function') renderVenues();
         }
 
+        if (page === 'cari-lawan') {
+            if (typeof renderMabarFeedInit === 'function') renderMabarFeedInit();
+        }
+
         // Render transaksi history
         if (page === 'transaksi') {
             if (typeof renderTransaksi === 'function') renderTransaksi();
@@ -496,7 +500,7 @@
             sport: selectedSport,
             location: selectedLocation,
             field: fieldNames[selectedField],
-            schedule: selectedTimes.join(', '),
+            schedule: ds + ', ' + timeStr,
             total: fmt(total),
             timestamp: now.getTime()
         });
@@ -525,6 +529,53 @@
         document.getElementById('booking-stepper').style.display = 'flex';
         document.getElementById('booking-back-bar').style.display = 'flex';
         goToStep(1);
+    }
+
+    function processMabarPayment() {
+        if (!currentCheckoutMabar) return;
+        const m = currentCheckoutMabar;
+        const qty = window.currentMabarQty || 1;
+        const ticketTotal = m.price * qty;
+        const finalTotal = ticketTotal + 5000;
+
+        const now = new Date();
+        const id = 'MBR-' + now.getFullYear().toString().slice(2) +
+            String(now.getMonth()+1).padStart(2,'0') +
+            String(now.getDate()).padStart(2,'0') + '-' +
+            String(Math.floor(Math.random()*9999)).padStart(4,'0');
+
+        document.getElementById('succ-mabar-id').textContent = id;
+        document.getElementById('succ-mabar-sport').textContent = m.sport;
+        document.getElementById('succ-mabar-location').textContent = m.location;
+        // Append qty to the title in success screen
+        document.getElementById('succ-mabar-title').textContent = `${m.title} (${qty} Tiket)`;
+        document.getElementById('succ-mabar-time').textContent = m.date + ', ' + m.time;
+        document.getElementById('succ-mabar-total').textContent = fmt(finalTotal);
+
+        // Deduct slots
+        m.currentPlayers = m.currentPlayers - qty;
+        // Update localStorage for mabarEvents
+        if (typeof mabarEvents !== 'undefined') {
+            localStorage.setItem('sparingin_mabar_events_v2', JSON.stringify(mabarEvents));
+        }
+
+        // Save to Transaction History
+        const historyKey = 'sparingin_history_' + currentEmail;
+        let transactionHistory = JSON.parse(localStorage.getItem(historyKey) || '[]');
+        transactionHistory.push({
+            id: id,
+            type: 'mabar',
+            sport: m.sport,
+            location: m.location,
+            field: m.title + ` (${qty} Tiket)`,
+            schedule: m.date + ', ' + m.time,
+            total: fmt(finalTotal),
+            timestamp: now.getTime()
+        });
+        localStorage.setItem(historyKey, JSON.stringify(transactionHistory));
+
+        document.getElementById('mabar-checkout-container').style.display = 'none';
+        document.getElementById('mabar-success-screen').style.display = 'block';
     }
 
     // ═══════════════════════════════════════════
@@ -930,7 +981,7 @@
             <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem;">
                 <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 1rem;">
                     <div>
-                        <span style="font-size: 0.8rem; color: var(--text-secondary);">Booking ID</span>
+                        <span style="font-size: 0.8rem; color: var(--text-secondary);">${item.type === 'mabar' ? 'Mabar ID' : 'Booking ID'}</span>
                         <div style="font-weight: 700; color: var(--primary); font-family: monospace; font-size: 1.1rem;">${item.id}</div>
                     </div>
                     <span style="background: rgba(34, 197, 94, 0.1); color: #22c55e; padding: 0.4rem 1rem; border-radius: 20px; font-weight: 600; font-size: 0.85rem; border: 1px solid rgba(34, 197, 94, 0.2);">BERHASIL</span>
@@ -945,7 +996,7 @@
                         <div style="font-weight: 600;">${item.location}</div>
                     </div>
                     <div style="grid-column: span 2;">
-                        <span style="display: block; font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 0.25rem;">Lapangan</span>
+                        <span style="display: block; font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 0.25rem;">${item.type === 'mabar' ? 'Penyelenggara / Tim' : 'Lapangan'}</span>
                         <div style="font-weight: 600;">${item.field}</div>
                     </div>
                     <div style="grid-column: span 2;">

@@ -8,7 +8,7 @@ const PageProfile = `
                 <span class="logo-text">SPARING-IN</span>
             </div>
         </div>
-        <nav class="header-nav" style="visibility: hidden;">
+        <nav class="header-nav profile-nav">
             <a class="nav-link" onclick="navigateTo('home')">Beranda</a>
             <a class="nav-link" onclick="navigateTo('booking')">Booking Lapangan</a>
             <a class="nav-link" onclick="navigateTo('cari-lawan')">Cari Lawan</a>
