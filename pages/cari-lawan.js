@@ -90,10 +90,10 @@ const PageCariLawan = `
                     </div>
                     <div class="cd-list">
                         <div class="cd-option selected" onclick="selectCd(this, 'Semua Lokasi', 'location')">Semua Lokasi</div>
-                        <div class="cd-option" onclick="selectCd(this, 'Jakarta Selatan', 'location')">Jakarta Selatan</div>
+                        <div class="cd-option" onclick="selectCd(this, 'Ciledug', 'location')">Ciledug</div>
+                        <div class="cd-option" onclick="selectCd(this, 'Bintaro', 'location')">Bintaro</div>
                         <div class="cd-option" onclick="selectCd(this, 'Jakarta Pusat', 'location')">Jakarta Pusat</div>
-                        <div class="cd-option" onclick="selectCd(this, 'Tangerang', 'location')">Tangerang</div>
-                        <div class="cd-option" onclick="selectCd(this, 'Depok', 'location')">Depok</div>
+                        <div class="cd-option" onclick="selectCd(this, 'Jakarta Selatan', 'location')">Jakarta Selatan</div>
                     </div>
                 </div>
 
@@ -433,6 +433,26 @@ function selectCd(el, val, type) {
     }
 }
 
+window.setMabarLocationFilter = function(city) {
+    const list = document.querySelector('#filter-location').parentElement.nextElementSibling;
+    if (list) {
+        const options = list.querySelectorAll('.cd-option');
+        options.forEach(opt => {
+            opt.classList.remove('selected');
+            if (opt.textContent.trim() === city) {
+                opt.classList.add('selected');
+                document.querySelector('#filter-location').textContent = city;
+            }
+        });
+    }
+    mabarFilters.location = city;
+    renderMabarFeed();
+}
+
+window.renderMabarFeedInit = function() {
+    renderMabarFeed();
+}
+
 window.currentMabarQty = 1;
 
 function checkoutMabar(id) {
@@ -482,18 +502,26 @@ function updateMabarCheckoutPrices() {
     document.getElementById('mabar-co-total').textContent = fmt(ticketTotal + 5000); // 5000 service fee fixed per transaction
 }
 
-function cancelMabarCheckout() {
+async function cancelMabarCheckout(force = false) {
+    if (!force) {
+        const confirmed = await window.showConfirmModal("Apakah kamu ingin membatalkan transaksi ini?");
+        if (!confirmed) {
+            return;
+        }
+    }
     currentCheckoutMabar = null;
     document.getElementById('mabar-checkout-container').style.display = 'none';
     document.getElementById('mabar-header-tabs').style.display = 'flex';
-    document.getElementById('tab-content-mabar').style.display = 'block';
+    if (typeof switchCariLawanTab === 'function') switchCariLawanTab('mabar');
+    else document.getElementById('tab-content-mabar').style.display = 'block';
 }
 
 function resetMabarAndNavigate(dest) {
     document.getElementById('mabar-success-screen').style.display = 'none';
     document.getElementById('mabar-checkout-container').style.display = 'none';
     document.getElementById('mabar-header-tabs').style.display = 'flex';
-    document.getElementById('tab-content-mabar').style.display = 'block';
+    if (typeof switchCariLawanTab === 'function') switchCariLawanTab('mabar');
+    else document.getElementById('tab-content-mabar').style.display = 'block';
     
     currentCheckoutMabar = null;
 

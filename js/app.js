@@ -18,9 +18,61 @@
     const serviceFee = 5000;
 
     // ═══════════════════════════════════════════
+    // CUSTOM CONFIRM MODAL
+    // ═══════════════════════════════════════════
+    window.showConfirmModal = function(message, title = 'Konfirmasi', okText = 'Ya, Batalkan', cancelText = 'Tidak') {
+        return new Promise((resolve) => {
+            const overlay = document.getElementById('custom-confirm-modal');
+            if (!overlay) return resolve(confirm(message)); // fallback
+
+            document.getElementById('confirm-modal-title').textContent = title;
+            document.getElementById('confirm-modal-message').textContent = message;
+            document.getElementById('confirm-modal-ok').textContent = okText;
+            document.getElementById('confirm-modal-cancel').textContent = cancelText;
+            
+            overlay.classList.add('show');
+            
+            const btnOk = document.getElementById('confirm-modal-ok');
+            const btnCancel = document.getElementById('confirm-modal-cancel');
+            
+            const cleanup = () => {
+                overlay.classList.remove('show');
+                btnOk.removeEventListener('click', onOk);
+                btnCancel.removeEventListener('click', onCancel);
+            };
+            
+            const onOk = () => { cleanup(); resolve(true); };
+            const onCancel = () => { cleanup(); resolve(false); };
+            
+            btnOk.addEventListener('click', onOk);
+            btnCancel.addEventListener('click', onCancel);
+        });
+    };
+
+    // ═══════════════════════════════════════════
     // PAGE NAVIGATION
     // ═══════════════════════════════════════════
     async function navigateTo(page) {
+        if (page === currentPage) return;
+
+        // Check for pending transaction BEFORE switching pages
+        if (currentPage === 'booking' && typeof currentStep !== 'undefined' && currentStep === 3) {
+            const confirmed = await window.showConfirmModal("Apakah kamu ingin membatalkan transaksi ini?");
+            if (!confirmed) {
+                return; // User cancelled the navigation
+            }
+        }
+        
+        if (currentPage === 'cari-lawan') {
+            const co = document.getElementById('mabar-checkout-container');
+            if (co && co.style.display === 'block') {
+                const confirmed = await window.showConfirmModal("Apakah kamu ingin membatalkan transaksi ini?");
+                if (!confirmed) {
+                    return; // User cancelled the navigation
+                }
+            }
+        }
+
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
         const pageEl = document.getElementById('page-' + page);
         
@@ -42,6 +94,14 @@
         currentPage = page;
         window.scrollTo({ top: 0, behavior: 'smooth' });
         
+        // Reset states when entering specific pages
+        if (page === 'booking') {
+            if (typeof resetBooking === 'function') resetBooking();
+        }
+        if (page === 'cari-lawan') {
+            if (typeof cancelMabarCheckout === 'function') cancelMabarCheckout(true);
+        }
+        
         // Update all headers dynamically
         const savedAvatar = currentEmail ? localStorage.getItem('sparingin_profile_pic_' + currentEmail) : null;
         document.querySelectorAll('[id^="header-user-name"]').forEach(el => {
@@ -61,11 +121,61 @@
         
         // Render home venues if navigating to home
         if (page === 'home') {
-            if (typeof renderVenues === 'function') renderVenues();
+            if (!userLocation && navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    async (position) => {
+                        const lat = position.coords.latitude;
+                        const lng = position.coords.longitude;
+                        const distToCiledug = calculateDistance(lat, lng, -6.233, 106.716);
+                        const distToUPJ = calculateDistance(lat, lng, -6.284, 106.728);
+                        const detectedRegion = distToCiledug < distToUPJ ? 'ciledug' : 'upj';
+                        
+                        userLocation = { lat, lng, cityName: 'Area Anda', region: detectedRegion };
+                        
+                        try {
+                            const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`);
+                            const data = await res.json();
+                            const city = data.address.city || data.address.town || data.address.village || data.address.suburb || 'Lokasi Anda';
+                            userLocation.cityName = city;
+                        } catch (e) {
+                            // suppress
+                        }
+
+                        if (typeof renderVenues === 'function') renderVenues();
+                    },
+                    (error) => {
+                        if (typeof renderVenues === 'function') renderVenues();
+                    }
+                );
+            } else {
+                if (typeof renderVenues === 'function') renderVenues();
+            }
         }
 
         if (page === 'cari-lawan') {
-            if (typeof renderMabarFeedInit === 'function') renderMabarFeedInit();
+            if (userLocation) {
+                const lat = userLocation.lat;
+                const lng = userLocation.lng;
+                const distToCiledug = calculateDistance(lat, lng, -6.233, 106.716);
+                const distToBintaro = calculateDistance(lat, lng, -6.284, 106.728);
+                const distToJaksel = calculateDistance(lat, lng, -6.261, 106.810);
+                const distToJakpus = calculateDistance(lat, lng, -6.180, 106.828);
+                
+                let min = Math.min(distToCiledug, distToBintaro, distToJaksel, distToJakpus);
+                let nearestCity = 'Semua Lokasi';
+                if(min === distToCiledug) nearestCity = 'Ciledug';
+                else if(min === distToBintaro) nearestCity = 'Bintaro';
+                else if(min === distToJaksel) nearestCity = 'Jakarta Selatan';
+                else if(min === distToJakpus) nearestCity = 'Jakarta Pusat';
+
+                if(typeof window.setMabarLocationFilter === 'function') {
+                    window.setMabarLocationFilter(nearestCity);
+                } else if (typeof renderMabarFeedInit === 'function') {
+                    renderMabarFeedInit();
+                }
+            } else {
+                if (typeof renderMabarFeedInit === 'function') renderMabarFeedInit();
+            }
         }
 
         // Render transaksi history
@@ -101,24 +211,8 @@
         if (page === 'booking') {
             const currentSportVal = document.querySelector('.sport-option.selected input')?.value || 'futsal';
             
-            if (!userLocation && navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                    (position) => {
-                        const lat = position.coords.latitude;
-                        const lng = position.coords.longitude;
-                        const distToCiledug = calculateDistance(lat, lng, -6.233, 106.716);
-                        const distToUPJ = calculateDistance(lat, lng, -6.284, 106.728);
-                        const detectedRegion = distToCiledug < distToUPJ ? 'ciledug' : 'upj';
-                        userLocation = { lat, lng, cityName: 'Area Anda', region: detectedRegion };
-                        renderBookingLocations(currentSportVal);
-                    },
-                    (error) => {
-                        renderBookingLocations(currentSportVal); // fallback to default
-                    }
-                );
-            } else {
-                renderBookingLocations(currentSportVal);
-            }
+            // Just use the globally cached userLocation, don't prompt again
+            renderBookingLocations(currentSportVal);
             
             // Setup Date Input
             const dateInput = document.getElementById('date');
@@ -149,6 +243,101 @@
     // ═══════════════════════════════════════════
     // LOGIN / LOGOUT
     // ═══════════════════════════════════════════
+    function decodeJwtResponse(token) {
+        let base64Url = token.split('.')[1];
+        let base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        let jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        }).join(''));
+        return JSON.parse(jsonPayload);
+    }
+
+    window.handleGoogleLogin = function(response) {
+        try {
+            const responsePayload = decodeJwtResponse(response.credential);
+            
+            currentEmail = responsePayload.email;
+            loggedInUser = responsePayload.name;
+            const picture = responsePayload.picture;
+            
+            if (picture) {
+                localStorage.setItem('sparingin_profile_pic_' + currentEmail, picture);
+            }
+            
+            document.getElementById('login-error').style.display = 'none';
+            document.getElementById('login-email').value = '';
+            document.getElementById('login-password').value = '';
+            
+            navigateTo('home');
+        } catch (error) {
+            console.error("Google Login Error:", error);
+            const errorBox = document.getElementById('login-error');
+            document.getElementById('login-error-text').textContent = "Gagal memproses login Google.";
+            errorBox.style.display = 'flex';
+        }
+    }
+    window.toggleAuthMode = function() {
+        const loginForm = document.getElementById('login-form');
+        const registerForm = document.getElementById('register-form');
+        const title = document.querySelector('.login-form-header h2');
+        const subtitle = document.querySelector('.login-form-header p');
+        const footer = document.querySelector('.login-footer');
+        const errorBox = document.getElementById('login-error');
+        
+        if(errorBox) errorBox.classList.remove('show');
+
+        if (loginForm.style.display === 'none') {
+            loginForm.style.display = 'block';
+            registerForm.style.display = 'none';
+            title.textContent = 'Masuk ke Akun Anda';
+            subtitle.textContent = 'Selamat datang kembali! Silakan masuk untuk melanjutkan.';
+            footer.innerHTML = 'Belum punya akun? <a href="#" onclick="event.preventDefault(); toggleAuthMode();">Daftar Sekarang</a>';
+        } else {
+            loginForm.style.display = 'none';
+            registerForm.style.display = 'block';
+            title.textContent = 'Daftar Akun Baru';
+            subtitle.textContent = 'Lengkapi data diri Anda untuk bergabung dengan Sparing-In.';
+            footer.innerHTML = 'Sudah punya akun? <a href="#" onclick="event.preventDefault(); toggleAuthMode();">Masuk di sini</a>';
+        }
+    };
+
+    window.handleRegister = function(e) {
+        e.preventDefault();
+        const name = document.getElementById('reg-name').value.trim();
+        const email = document.getElementById('reg-email').value.trim().toLowerCase();
+        const pass = document.getElementById('reg-password').value;
+        const errorBox = document.getElementById('login-error');
+        const errorText = document.getElementById('login-error-text');
+        
+        let users = JSON.parse(localStorage.getItem('sparingin_users') || '{}');
+        
+        if (users[email]) {
+            errorText.textContent = "Email/Username sudah terdaftar!";
+            errorBox.classList.add('show');
+            return;
+        }
+        
+        users[email] = { name: name, password: pass };
+        localStorage.setItem('sparingin_users', JSON.stringify(users));
+        
+        currentEmail = email;
+        loggedInUser = name;
+        errorBox.classList.remove('show');
+        localStorage.setItem('sparingin_logged_in_email', currentEmail);
+        
+        document.getElementById('reg-name').value = '';
+        document.getElementById('reg-email').value = '';
+        document.getElementById('reg-password').value = '';
+        
+        document.querySelectorAll('[id^="header-user-name"]').forEach(el => el.textContent = 'Halo, ' + name);
+        document.querySelectorAll('[id^="header-user-avatar"]').forEach(el => {
+            el.style.backgroundImage = 'none';
+            el.textContent = name.substring(0, 2).toUpperCase();
+        });
+        
+        navigateTo('home');
+    };
+
     function handleLogin(e) {
         e.preventDefault();
         const rawInput = document.getElementById('login-email').value.trim().toLowerCase();
@@ -163,16 +352,26 @@
         }
 
         const username = rawInput.includes('@') ? rawInput.split('@')[0] : rawInput;
-        const account = demoAccounts[username];
-        if (!account || account.password !== pass) {
+        
+        // Cek localStorage dulu
+        let users = JSON.parse(localStorage.getItem('sparingin_users') || '{}');
+        let validUser = null;
+        
+        if (users[rawInput] && users[rawInput].password === pass) {
+            validUser = { name: users[rawInput].name, username: rawInput };
+        } else if (typeof demoAccounts !== 'undefined' && demoAccounts[username] && demoAccounts[username].password === pass) {
+            validUser = { name: demoAccounts[username].name, username: username };
+        }
+
+        if (!validUser) {
             errorText.textContent = 'Username/Email atau password salah. Silakan coba lagi.';
             errorBox.classList.add('show');
             return;
         }
 
         errorBox.classList.remove('show');
-        loggedInUser = account.name;
-        currentEmail = username;
+        loggedInUser = validUser.name;
+        currentEmail = validUser.username;
         localStorage.setItem('sparingin_logged_in_email', currentEmail);
         
         // Cek apakah ada foto profil yang tersimpan di localStorage
@@ -305,7 +504,13 @@
     // ═══════════════════════════════════════════
     // BOOKING NAVIGATION
     // ═══════════════════════════════════════════
-    function handleBookingBack() {
+    async function handleBookingBack() {
+        if (currentStep === 3) {
+            const confirmed = await window.showConfirmModal("Apakah kamu ingin membatalkan transaksi ini?");
+            if (!confirmed) {
+                return;
+            }
+        }
         if (currentStep > 1) goToStep(currentStep - 1);
         else navigateTo('home');
     }
@@ -330,7 +535,7 @@
         const titles = { 1: 'Booking Lapangan', 2: 'Pilih Jadwal', 3: 'Checkout & Pembayaran', 4: 'Booking Berhasil' };
         document.getElementById('back-bar-title').textContent = titles[step] || 'Booking';
         document.getElementById('booking-stepper').style.display = (step === 4) ? 'none' : 'flex';
-        document.getElementById('booking-back-bar').style.display = (step === 4) ? 'none' : 'flex';
+        document.getElementById('booking-back-bar').style.display = (step === 3 || step === 4) ? 'none' : 'flex';
 
         if (step === 3) updateSummary();
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -556,7 +761,7 @@
         m.currentPlayers = m.currentPlayers - qty;
         // Update localStorage for mabarEvents
         if (typeof mabarEvents !== 'undefined') {
-            localStorage.setItem('sparingin_mabar_events_v2', JSON.stringify(mabarEvents));
+            localStorage.setItem('sparingin_mabar_events_v8', JSON.stringify(mabarEvents));
         }
 
         // Save to Transaction History
@@ -744,69 +949,9 @@
         renderVenues();
     }
 
-    function toggleNearest() {
-        const btn = document.getElementById('btn-nearest');
-        
-        if (!homeShowNearest) {
-            // Aktifkan Filter Lokasi
-            homeShowNearest = true;
-            btn.classList.add('active');
-            btn.innerHTML = '⏳ Mendeteksi Lokasi...';
-            
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                    async (position) => {
-                        const lat = position.coords.latitude;
-                        const lng = position.coords.longitude;
-                        
-                        // Deteksi Region Berdasarkan Kedekatan ke Titik Pusat
-                        const distToCiledug = calculateDistance(lat, lng, -6.233, 106.716);
-                        const distToUPJ = calculateDistance(lat, lng, -6.284, 106.728);
-                        const detectedRegion = distToCiledug < distToUPJ ? 'ciledug' : 'upj';
-                        
-                        userLocation = { lat, lng, cityName: 'Area Anda', region: detectedRegion };
-                        
-                        // Reverse Geocoding via Nominatim
-                        try {
-                            const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`);
-                            const data = await res.json();
-                            const city = data.address.city || data.address.town || data.address.village || data.address.suburb || 'Lokasi Anda';
-                            userLocation.cityName = city;
-                            document.getElementById('user-location-text').innerHTML = `📍 Berdasarkan lokasi Anda: <strong>${city}</strong>`;
-                        } catch (e) {
-                            document.getElementById('user-location-text').innerHTML = `📍 Berdasarkan koordinat GPS Anda`;
-                        }
-
-                        btn.innerHTML = '📍 Filter Terdekat (Aktif)';
-                        renderVenues();
-                    },
-                    (error) => {
-                        alert('Gagal mendeteksi lokasi atau akses ditolak. Pastikan izin lokasi (GPS) browser Anda aktif.');
-                        homeShowNearest = false;
-                        btn.classList.remove('active');
-                        btn.innerHTML = '📍 Tampilkan Terdekat';
-                        renderVenues();
-                    }
-                );
-            } else {
-                alert('Browser Anda tidak mendukung Geolocation.');
-                homeShowNearest = false;
-                btn.classList.remove('active');
-                btn.innerHTML = '📍 Tampilkan Terdekat';
-            }
-        } else {
-            // Matikan Filter
-            homeShowNearest = false;
-            userLocation = null;
-            btn.classList.remove('active');
-            btn.innerHTML = '📍 Tampilkan Terdekat';
-            document.getElementById('user-location-text').innerHTML = 'Temukan lapangan olahraga terbaik di sekitar Anda';
-            renderVenues();
-        }
-    }
-
     function renderVenues() {
         const grid = document.getElementById('home-venue-grid');
+        if (!grid) return;
         grid.innerHTML = ''; // Clear existing
 
         // Calculate distances and filter
@@ -821,18 +966,32 @@
         }
 
         // Location Filter & Sorting
-        if (homeShowNearest && userLocation) {
+        if (userLocation) {
             // Tampilkan HANYA lapangan yang berada di region yang sama dengan pengguna
             displayVenues = displayVenues.filter(v => v.region === userLocation.region);
             
-            // Sort by nearest distance
-            displayVenues.sort((a, b) => a.calculatedDist - b.calculatedDist);
-        } else if (homeCurrentSport === 'semua') {
-            // Default home view (top rated)
-            displayVenues.sort((a, b) => b.rating - a.rating);
-            displayVenues = displayVenues.slice(0, 4);
+            // Sort by terfavorit (rating) and distance
+            displayVenues.sort((a, b) => b.rating - a.rating || a.calculatedDist - b.calculatedDist);
+            
+            // Tampilkan maksimal 5 lapangan
+            displayVenues = displayVenues.slice(0, 5);
+            
+            // Update subtitle
+            const textEl = document.getElementById('user-location-text');
+            if (textEl && userLocation.cityName) {
+                 textEl.innerHTML = `📍 Berdasarkan lokasi Anda: <strong>${userLocation.cityName}</strong>`;
+            }
         } else {
-            displayVenues.sort((a, b) => a.name.localeCompare(b.name));
+            // Sort by terfavorit (rating)
+            displayVenues.sort((a, b) => b.rating - a.rating);
+            
+            // Tampilkan maksimal 5 lapangan
+            displayVenues = displayVenues.slice(0, 5);
+            
+            const textEl = document.getElementById('user-location-text');
+            if (textEl) {
+                 textEl.innerHTML = `Temukan lapangan olahraga terbaik di sekitar Anda`;
+            }
         }
 
         // Generate HTML

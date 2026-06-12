@@ -75,16 +75,13 @@ const PageBeranda = `
         </div>
         
         <div class="home-filter-bar">
-            <div class="home-filter-sports" id="home-sport-filters">
+            <div class="home-filter-sports" id="home-sport-filters" style="width: 100%; display: flex; flex-wrap: wrap; gap: 0.5rem;">
                 <button class="home-filter-btn active" onclick="filterHomeVenues('semua', this)">Semua</button>
                 <button class="home-filter-btn" onclick="filterHomeVenues('futsal', this)">Futsal</button>
                 <button class="home-filter-btn" onclick="filterHomeVenues('basket', this)">Basket</button>
                 <button class="home-filter-btn" onclick="filterHomeVenues('badminton', this)">Badminton</button>
                 <button class="home-filter-btn" onclick="filterHomeVenues('padel', this)">Padel</button>
             </div>
-            <button class="location-toggle-btn" id="btn-nearest" onclick="toggleNearest()">
-                📍 Tampilkan Terdekat
-            </button>
         </div>
 
         <div class="venue-grid" id="home-venue-grid">

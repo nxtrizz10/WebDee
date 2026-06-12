@@ -318,7 +318,7 @@ const PageBooking = `
                         </div>
 
                         <div class="btn-group" style="margin-top:1.5rem;">
-                            <button class="btn btn-secondary" onclick="goToStep(2)">← Kembali</button>
+                            <button class="btn btn-secondary" onclick="handleBookingBack()">← Kembali</button>
                         </div>
                     </div>
                 </div>
