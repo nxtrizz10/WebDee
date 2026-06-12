@@ -264,6 +264,9 @@
                 localStorage.setItem('sparingin_profile_pic_' + currentEmail, picture);
             }
             
+            localStorage.setItem('sparingin_logged_in_email', currentEmail);
+            localStorage.setItem('sparingin_logged_in_name', loggedInUser);
+            
             document.getElementById('login-error').style.display = 'none';
             document.getElementById('login-email').value = '';
             document.getElementById('login-password').value = '';
@@ -324,6 +327,7 @@
         loggedInUser = name;
         errorBox.classList.remove('show');
         localStorage.setItem('sparingin_logged_in_email', currentEmail);
+        localStorage.setItem('sparingin_logged_in_name', loggedInUser);
         
         document.getElementById('reg-name').value = '';
         document.getElementById('reg-email').value = '';
@@ -373,6 +377,7 @@
         loggedInUser = validUser.name;
         currentEmail = validUser.username;
         localStorage.setItem('sparingin_logged_in_email', currentEmail);
+        localStorage.setItem('sparingin_logged_in_name', loggedInUser);
         
         // Cek apakah ada foto profil yang tersimpan di localStorage
         const savedAvatar = localStorage.getItem('sparingin_profile_pic_' + currentEmail);
@@ -417,6 +422,7 @@
         loggedInUser = null;
         currentEmail = null;
         localStorage.removeItem('sparingin_logged_in_email');
+        localStorage.removeItem('sparingin_logged_in_name');
         currentStep = 1;
         document.getElementById('login-email').value = '';
         document.getElementById('login-password').value = '';
@@ -1032,10 +1038,22 @@
     (function() {
         // Cek Auto Login
         const savedEmail = localStorage.getItem('sparingin_logged_in_email');
-        if (savedEmail && typeof demoAccounts !== 'undefined' && demoAccounts[savedEmail]) {
-            loggedInUser = demoAccounts[savedEmail].name;
-            currentEmail = savedEmail;
-            navigateTo('home');
+        const savedName = localStorage.getItem('sparingin_logged_in_name');
+        
+        if (savedEmail) {
+            let nameToUse = savedName;
+            
+            if (!nameToUse) {
+                let users = JSON.parse(localStorage.getItem('sparingin_users') || '{}');
+                if (users[savedEmail]) nameToUse = users[savedEmail].name;
+                else if (typeof demoAccounts !== 'undefined' && demoAccounts[savedEmail]) nameToUse = demoAccounts[savedEmail].name;
+            }
+            
+            if (nameToUse) {
+                loggedInUser = nameToUse;
+                currentEmail = savedEmail;
+                navigateTo('home');
+            }
         }
     })();
 
