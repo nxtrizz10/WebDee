@@ -382,7 +382,7 @@
         // Cek apakah ada foto profil yang tersimpan di localStorage
         const savedAvatar = localStorage.getItem('sparingin_profile_pic_' + currentEmail);
 
-        document.querySelectorAll('[id^="header-user-name"]').forEach(el => el.textContent = 'Halo, ' + account.name);
+        document.querySelectorAll('[id^="header-user-name"]').forEach(el => el.textContent = 'Halo, ' + validUser.name);
         
         const profileAvatarEl = document.getElementById('profile-avatar-display');
 
@@ -399,18 +399,18 @@
             }
         } else {
             document.querySelectorAll('[id^="header-user-avatar"]').forEach(el => {
-                el.textContent = account.name.substring(0, 2).toUpperCase();
+                el.textContent = validUser.name.substring(0, 2).toUpperCase();
                 el.style.backgroundImage = 'none';
             });
             if(profileAvatarEl) {
-                profileAvatarEl.textContent = account.name.substring(0, 2).toUpperCase();
+                profileAvatarEl.textContent = validUser.name.substring(0, 2).toUpperCase();
                 profileAvatarEl.style.backgroundImage = 'none';
             }
         }
 
         // Update Profile Page Data
         const profileNameEl = document.getElementById('profile-name-display');
-        if(profileNameEl) profileNameEl.textContent = account.name.toUpperCase();
+        if(profileNameEl) profileNameEl.textContent = validUser.name.toUpperCase();
         
         const profileUsernameEl = document.querySelector('.profile-username');
         if(profileUsernameEl) profileUsernameEl.textContent = `@${username} • Jakarta`;
@@ -427,6 +427,12 @@
         document.getElementById('login-email').value = '';
         document.getElementById('login-password').value = '';
         document.getElementById('login-error').classList.remove('show');
+        
+        // Reset form view to Login if it was on Register
+        const loginForm = document.getElementById('login-form');
+        if (loginForm && loginForm.style.display === 'none') {
+            toggleAuthMode();
+        }
         
         // Reset Avatars
         document.querySelectorAll('[id^="header-user-avatar"]').forEach(el => {
