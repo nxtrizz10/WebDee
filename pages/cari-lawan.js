@@ -1,33 +1,6 @@
 const PageCariLawan = `
 <!-- ── App Header ── -->
-    <style>
-        .custom-dropdown-container { position: relative; flex: 1; min-width: 200px; user-select: none; }
-        .cd-header {
-            background: var(--bg-card); border: 1px solid var(--border); padding: 0.85rem 1rem; border-radius: var(--radius-md);
-            display: flex; justify-content: space-between; align-items: center; cursor: pointer; color: var(--text-primary);
-            font-size: 0.95rem; font-weight: 500; transition: border-color 0.2s, box-shadow 0.2s;
-        }
-        .cd-header:hover { border-color: var(--primary-light); box-shadow: 0 0 0 3px var(--primary-glow); }
-        .cd-arrow { color: var(--text-muted); font-size: 0.8rem; }
-        .cd-list {
-            position: absolute; top: 100%; left: 0; right: 0; background: #0a0f0d;
-            border: 1px solid var(--border); border-radius: var(--radius-md); margin-top: 0.5rem;
-            overflow: hidden; display: none; flex-direction: column; z-index: 50;
-            box-shadow: 0 15px 30px rgba(0,0,0,0.8);
-        }
-        .cd-list.show { display: flex; animation: slideDown 0.2s ease forwards; }
-        .cd-option {
-            padding: 0.85rem 1rem; color: var(--text-secondary); cursor: pointer; font-weight: 600; font-size: 0.95rem;
-            transition: 0.2s; border-bottom: 1px solid rgba(255,255,255,0.02);
-        }
-        .cd-option:last-child { border-bottom: none; }
-        .cd-option:hover { background: rgba(255,255,255,0.05); color: var(--text-primary); }
-        .cd-option.selected {
-            background: rgba(34, 197, 94, 0.1);
-            color: var(--primary-light);
-        }
-    </style>
-    <header id="app-header-cari">
+<header id="app-header-cari">
         <div class="header-left" style="display: flex; align-items: center; gap: 1rem;">
             <button class="mobile-menu-btn" onclick="toggleMobileMenu()">☰</button>
             <div class="logo" onclick="navigateTo('home')">
@@ -428,8 +401,16 @@ function selectCd(el, val, type) {
     
     // Update filters and re-render
     if (type) {
-        mabarFilters[type] = val;
-        renderMabarFeed();
+        if (type.startsWith('event-')) {
+            const eventType = type.replace('event-', '');
+            if (window.eventFilters) {
+                window.eventFilters[eventType] = val;
+                if (typeof window.renderTournaments === 'function') window.renderTournaments();
+            }
+        } else {
+            mabarFilters[type] = val;
+            renderMabarFeed();
+        }
     }
 }
 

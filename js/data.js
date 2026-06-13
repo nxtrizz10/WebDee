@@ -80,14 +80,25 @@ const venuesDB = [
 
     // Tournament Events Data
     const defaultTournamentEvents = [
-        { id: 't_1', title: 'Ciledug Futsal Cup 2026', sport: 'Futsal', sportRaw: 'futsal', sportIcon: '⚽', location: 'CBD Ciledug Sport', city: 'Ciledug', date: 'Sabtu, 15 Ags 2026', fee: 150000, prizePool: 2000000, currentSlots: 10, maxSlots: 16, organizer: 'Ciledug FA', color: '#22c55e', bg: 'rgba(34, 197, 94, 0.1)' },
-        { id: 't_2', title: 'Bintaro Basketball League', sport: 'Basket', sportRaw: 'basket', sportIcon: '🏀', location: 'AM Bintaro Court', city: 'Bintaro', date: 'Minggu, 23 Ags 2026', fee: 200000, prizePool: 3000000, currentSlots: 5, maxSlots: 8, organizer: 'Bintaro Hoops', color: '#ef4444', bg: 'rgba(239, 68, 68, 0.1)' },
-        { id: 't_3', title: 'Open Badminton Bintaro', sport: 'Badminton', sportRaw: 'badmin', sportIcon: '🏸', location: 'GOR PB Jaya Raya', city: 'Bintaro', date: 'Sabtu, 29 Ags 2026', fee: 50000, prizePool: 1000000, currentSlots: 14, maxSlots: 32, organizer: 'Jaya Raya', color: '#a855f7', bg: 'rgba(168, 85, 247, 0.1)' },
-        { id: 't_4', title: 'Jakarta Padel Master', sport: 'Padel', sportRaw: 'padel', sportIcon: '🎾', location: 'Centro Padel Bintaro', city: 'Jakarta Selatan', date: 'Minggu, 06 Sep 2026', fee: 100000, prizePool: 1500000, currentSlots: 8, maxSlots: 16, organizer: 'Padel Indo', color: '#f59e0b', bg: 'rgba(245, 158, 11, 0.1)' }
+        // FAVORITE / FEATURED (isFav: true)
+        { id: 't_1', title: 'Ciledug Futsal Cup 2026', sport: 'Futsal', sportRaw: 'futsal', sportIcon: '⚽', location: 'CBD Ciledug Sport', city: 'Ciledug', date: 'Sabtu, 15 Ags 2026', fee: 150000, prizePool: 2000000, currentSlots: 10, maxSlots: 16, organizer: 'Ciledug FA', color: '#22c55e', bg: 'rgba(34, 197, 94, 0.1)', isFav: true },
+        { id: 't_2', title: 'Bintaro Basketball League', sport: 'Basket', sportRaw: 'basket', sportIcon: '🏀', location: 'AM Bintaro Court', city: 'Bintaro', date: 'Minggu, 23 Ags 2026', fee: 200000, prizePool: 3000000, currentSlots: 5, maxSlots: 8, organizer: 'Bintaro Hoops', color: '#ef4444', bg: 'rgba(239, 68, 68, 0.1)', isFav: true },
+        { id: 't_3', title: 'Open Badminton Bintaro', sport: 'Badminton', sportRaw: 'badmin', sportIcon: '🏸', location: 'GOR PB Jaya Raya', city: 'Bintaro', date: 'Sabtu, 29 Ags 2026', fee: 50000, prizePool: 1000000, currentSlots: 14, maxSlots: 32, organizer: 'Jaya Raya', color: '#a855f7', bg: 'rgba(168, 85, 247, 0.1)', isFav: true },
+        { id: 't_4', title: 'Jakarta Padel Master', sport: 'Padel', sportRaw: 'padel', sportIcon: '🎾', location: 'Centro Padel Bintaro', city: 'Jakarta Selatan', date: 'Minggu, 06 Sep 2026', fee: 100000, prizePool: 1500000, currentSlots: 8, maxSlots: 16, organizer: 'Padel Indo', color: '#f59e0b', bg: 'rgba(245, 158, 11, 0.1)', isFav: true },
+        { id: 't_5', title: 'Senayan Futsal Championship', sport: 'Futsal', sportRaw: 'futsal', sportIcon: '⚽', location: 'GBK Arena', city: 'Jakarta Pusat', date: 'Minggu, 13 Sep 2026', fee: 350000, prizePool: 5000000, currentSlots: 20, maxSlots: 32, organizer: 'Jakarta Sport', color: '#22c55e', bg: 'rgba(34, 197, 94, 0.1)', isFav: true },
+
+        // REGULAR (isFav: false)
+        { id: 't_6', title: 'Puri Beta Weekend Futsal', sport: 'Futsal', sportRaw: 'futsal', sportIcon: '⚽', location: 'Puri Beta Futsal', city: 'Ciledug', date: 'Sabtu, 12 Sep 2026', fee: 100000, prizePool: 1000000, currentSlots: 4, maxSlots: 8, organizer: 'Puri Beta Club', color: '#22c55e', bg: 'rgba(34, 197, 94, 0.1)', isFav: false },
+        { id: 't_7', title: 'Bintaro Xchange 3x3', sport: 'Basket', sportRaw: 'basket', sportIcon: '🏀', location: 'BXHoops Basketball', city: 'Bintaro', date: 'Sabtu, 19 Sep 2026', fee: 150000, prizePool: 2500000, currentSlots: 12, maxSlots: 16, organizer: 'BXC Sports', color: '#ef4444', bg: 'rgba(239, 68, 68, 0.1)', isFav: false },
+        { id: 't_8', title: 'Ciledug Indah Badmin Cup', sport: 'Badminton', sportRaw: 'badmin', sportIcon: '🏸', location: 'Gor Bulutangkis Ciledug', city: 'Ciledug', date: 'Minggu, 20 Sep 2026', fee: 40000, prizePool: 800000, currentSlots: 8, maxSlots: 16, organizer: 'Ciledug PB', color: '#a855f7', bg: 'rgba(168, 85, 247, 0.1)', isFav: false },
+        { id: 't_9', title: 'Pondok Indah Padel Open', sport: 'Padel', sportRaw: 'padel', sportIcon: '🎾', location: 'Padel Ciledug Raya', city: 'Jakarta Selatan', date: 'Sabtu, 26 Sep 2026', fee: 150000, prizePool: 2000000, currentSlots: 4, maxSlots: 16, organizer: 'Jaksel Padel', color: '#f59e0b', bg: 'rgba(245, 158, 11, 0.1)', isFav: false },
+        { id: 't_10', title: 'Merdeka Basket League', sport: 'Basket', sportRaw: 'basket', sportIcon: '🏀', location: 'GOR Johar Baru', city: 'Jakarta Pusat', date: 'Minggu, 27 Sep 2026', fee: 200000, prizePool: 2500000, currentSlots: 6, maxSlots: 8, organizer: 'Merdeka Sports', color: '#ef4444', bg: 'rgba(239, 68, 68, 0.1)', isFav: false },
+        { id: 't_11', title: 'Serpong Badminton Series', sport: 'Badminton', sportRaw: 'badmin', sportIcon: '🏸', location: 'Chandra Wijaya IBC', city: 'Bintaro', date: 'Sabtu, 03 Okt 2026', fee: 75000, prizePool: 1500000, currentSlots: 20, maxSlots: 32, organizer: 'CW Club', color: '#a855f7', bg: 'rgba(168, 85, 247, 0.1)', isFav: false },
+        { id: 't_12', title: 'Jaksel Futsal Battle', sport: 'Futsal', sportRaw: 'futsal', sportIcon: '⚽', location: 'Kemang Futsal', city: 'Jakarta Selatan', date: 'Minggu, 04 Okt 2026', fee: 250000, prizePool: 3000000, currentSlots: 14, maxSlots: 16, organizer: 'Kemang FA', color: '#22c55e', bg: 'rgba(34, 197, 94, 0.1)', isFav: false }
     ];
 
-    let tournamentEvents = JSON.parse(localStorage.getItem('sparingin_tournament_events_v1'));
+    let tournamentEvents = JSON.parse(localStorage.getItem('sparingin_tournament_events_v2'));
     if (!tournamentEvents) {
         tournamentEvents = defaultTournamentEvents;
-        localStorage.setItem('sparingin_tournament_events_v1', JSON.stringify(tournamentEvents));
+        localStorage.setItem('sparingin_tournament_events_v2', JSON.stringify(tournamentEvents));
     }
