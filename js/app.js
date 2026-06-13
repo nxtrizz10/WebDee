@@ -101,6 +101,9 @@
         if (page === 'cari-lawan') {
             if (typeof cancelMabarCheckout === 'function') cancelMabarCheckout(true);
         }
+        if (page === 'event') {
+            if (typeof renderTournaments === 'function') renderTournaments();
+        }
         
         // Update all headers dynamically
         const savedAvatar = currentEmail ? localStorage.getItem('sparingin_profile_pic_' + currentEmail) : null;
@@ -1160,11 +1163,16 @@
         // Sort from newest to oldest
         history.sort((a, b) => b.timestamp - a.timestamp);
 
-        listContainer.innerHTML = history.map(item => `
+        listContainer.innerHTML = history.map(item => {
+            const isTournament = item.type === 'tournament';
+            const labelStr = isTournament ? 'Turnamen / Tim' : (item.type === 'mabar' ? 'Penyelenggara / Tim' : 'Lapangan');
+            const idStr = isTournament ? 'Reg ID' : (item.type === 'mabar' ? 'Mabar ID' : 'Booking ID');
+
+            return `
             <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem;">
                 <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 1rem;">
                     <div>
-                        <span style="font-size: 0.8rem; color: var(--text-secondary);">${item.type === 'mabar' ? 'Mabar ID' : 'Booking ID'}</span>
+                        <span style="font-size: 0.8rem; color: var(--text-secondary);">${idStr}</span>
                         <div style="font-weight: 700; color: var(--primary); font-family: monospace; font-size: 1.1rem;">${item.id}</div>
                     </div>
                     <span style="background: rgba(34, 197, 94, 0.1); color: #22c55e; padding: 0.4rem 1rem; border-radius: 20px; font-weight: 600; font-size: 0.85rem; border: 1px solid rgba(34, 197, 94, 0.2);">BERHASIL</span>
@@ -1179,7 +1187,7 @@
                         <div style="font-weight: 600;">${item.location}</div>
                     </div>
                     <div style="grid-column: span 2;">
-                        <span style="display: block; font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 0.25rem;">${item.type === 'mabar' ? 'Penyelenggara / Tim' : 'Lapangan'}</span>
+                        <span style="display: block; font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 0.25rem;">${labelStr}</span>
                         <div style="font-weight: 600;">${item.field}</div>
                     </div>
                     <div style="grid-column: span 2;">
@@ -1192,5 +1200,195 @@
                     <span style="font-weight: 800; color: var(--accent); font-size: 1.2rem;">${item.total}</span>
                 </div>
             </div>
-        `).join('');
+            `;
+        }).join('');
     }
+
+    // ==========================================================
+    // EVENT / TURNAMEN LOGIC
+    // ==========================================================
+    window.switchEventTab = function(tabName) {
+        const btnJoin = document.getElementById('btn-tab-join-events');
+        const btnBuat = document.getElementById('btn-tab-buat-event');
+        
+        if(btnJoin) btnJoin.classList.toggle('active', tabName === 'join');
+        if(btnBuat) btnBuat.classList.toggle('active', tabName === 'buat');
+        
+        const tabJoin = document.getElementById('tab-join-events');
+        const tabBuat = document.getElementById('tab-buat-event');
+        
+        if(tabJoin) tabJoin.style.display = tabName === 'join' ? 'block' : 'none';
+        if(tabBuat) tabBuat.style.display = tabName === 'buat' ? 'block' : 'none';
+        
+        const filterBar = document.querySelector('.match-filter-bar');
+        if (filterBar) {
+            filterBar.style.display = tabName === 'join' ? 'flex' : 'none';
+        }
+
+        if (tabName === 'join' && typeof renderTournaments === 'function') {
+            renderTournaments();
+        }
+    };
+
+    window.filterEvents = function() {
+        if (typeof renderTournaments === 'function') renderTournaments();
+    };
+
+    window.renderTournaments = function() {
+        const container = document.getElementById('event-feed-list');
+        if (!container) return;
+
+        const locFilter = document.getElementById('event-city-filter')?.value || 'all';
+        const sportFilter = document.getElementById('event-sport-filter')?.value || 'all';
+
+        const events = typeof tournamentEvents !== 'undefined' ? tournamentEvents.filter(t => {
+            const matchLoc = locFilter === 'all' || t.city === locFilter;
+            const matchSport = sportFilter === 'all' || t.sport === sportFilter;
+            return matchLoc && matchSport;
+        }) : [];
+
+        if (events.length === 0) {
+            container.innerHTML = '<p style="text-align:center; color:var(--text-muted); padding:2rem; grid-column: 1/-1;">Tidak ada turnamen yang tersedia untuk filter ini.</p>';
+            return;
+        }
+
+        container.innerHTML = events.map(t => {
+            const isIndividu = (t.sport === 'Badminton' || t.sport === 'Padel');
+            const regTypeLabel = isIndividu ? 'Individu' : 'Tim';
+            
+            return `
+                <div class="match-card" style="border: 1px solid ${t.color}50; background: linear-gradient(145deg, var(--bg-surface), ${t.bg});">
+                    <div class="match-card-header">
+                        <div class="match-info-left">
+                            <div class="match-sport-icon" style="background: ${t.color}20; color: ${t.color};">${t.sportIcon}</div>
+                            <div>
+                                <div class="match-host" style="font-size: 1.2rem; margin-bottom: 0.2rem;">${t.title}</div>
+                                <div class="match-location">🏢 ${t.organizer}</div>
+                            </div>
+                        </div>
+                        <div class="match-badge" style="background: ${t.color}; color: #fff;">Rp ${(t.prizePool/1000000).toFixed(1)} JUTA</div>
+                    </div>
+                    
+                    <div class="match-details" style="margin-top: 1rem;">
+                        <div class="detail-item" style="flex: 1 1 100%;">📍 ${t.location}, ${t.city}</div>
+                        <div class="detail-item">📅 ${t.date}</div>
+                        <div class="detail-item">👥 ${t.currentSlots}/${t.maxSlots} ${regTypeLabel}</div>
+                        <div class="detail-item" style="color: var(--accent); font-weight: 800; flex: 1 1 100%;">💰 Biaya: Rp ${t.fee.toLocaleString('id-ID')} / ${regTypeLabel}</div>
+                    </div>
+
+                    <div class="match-actions single" style="margin-top: 1.5rem;">
+                        <button class="btn btn-join btn-join-primary" style="background: ${t.color}; border: none;" onclick="handleJoinTournament('${t.id}')">DAFTAR TURNAMEN</button>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    };
+
+    window.handleJoinTournament = function(id) {
+        if (!loggedInUser) {
+            alert('Silakan login terlebih dahulu untuk mendaftar turnamen.');
+            navigateTo('login');
+            return;
+        }
+        
+        const event = tournamentEvents.find(t => t.id === id);
+        if(!event) return;
+        
+        if (event.currentSlots >= event.maxSlots) {
+            alert('Maaf, kuota pendaftaran turnamen ini sudah penuh.');
+            return;
+        }
+
+        const isIndividu = (event.sport === 'Badminton' || event.sport === 'Padel');
+        let regName = loggedInUser;
+        
+        if (!isIndividu) {
+            regName = prompt(`Turnamen ${event.sport} ini membutuhkan pendaftaran secara Tim. Silakan masukkan NAMA TIM Anda:`);
+            if (!regName || regName.trim() === '') {
+                return; // cancelled
+            }
+        } else {
+            const confirmJoin = confirm(`Anda akan mendaftar ke ${event.title} secara individu. Lanjutkan?`);
+            if (!confirmJoin) return;
+        }
+        
+        alert(`Berhasil! Anda (atas nama ${regName}) telah terdaftar di turnamen ${event.title}. Silakan cek riwayat di halaman Transaksi (Simulasi).`);
+        
+        // Push to history
+        const historyKey = 'sparingin_history_' + currentEmail;
+        let history = JSON.parse(localStorage.getItem(historyKey) || '[]');
+        history.push({
+            id: 'TRX-EVT-' + Math.random().toString(36).substr(2, 6).toUpperCase(),
+            type: 'tournament',
+            sport: event.sport,
+            location: event.location,
+            field: event.title + ` (Pendaftar: ${regName})`,
+            schedule: event.date,
+            total: `Rp ${event.fee.toLocaleString('id-ID')}`,
+            timestamp: Date.now()
+        });
+        localStorage.setItem(historyKey, JSON.stringify(history));
+        
+        // Tambah kuota (simulasi)
+        event.currentSlots += 1;
+        localStorage.setItem('sparingin_tournament_events_v1', JSON.stringify(tournamentEvents));
+        renderTournaments();
+    };
+
+    window.handleCreateTournament = function(e) {
+        e.preventDefault();
+        
+        if (!loggedInUser) {
+            alert('Silakan login terlebih dahulu untuk membuat turnamen.');
+            navigateTo('login');
+            return;
+        }
+
+        const title = document.getElementById('ce-title').value;
+        const organizer = document.getElementById('ce-organizer').value;
+        const sport = document.getElementById('ce-sport').value;
+        const city = document.getElementById('ce-city').value;
+        const location = document.getElementById('ce-location').value;
+        const date = document.getElementById('ce-date').value;
+        const maxSlots = parseInt(document.getElementById('ce-max-slots').value);
+        const fee = parseInt(document.getElementById('ce-fee').value);
+        const prizePool = parseInt(document.getElementById('ce-prize').value);
+
+        const sportIcons = { 'Futsal': '⚽', 'Basket': '🏀', 'Badminton': '🏸', 'Padel': '🎾' };
+        const sportColors = { 'Futsal': '#22c55e', 'Basket': '#ef4444', 'Badminton': '#a855f7', 'Padel': '#f59e0b' };
+
+        const newEvent = {
+            id: 't_user_' + Math.random().toString(36).substr(2, 6),
+            title: title,
+            organizer: organizer,
+            sport: sport,
+            sportRaw: sport.toLowerCase(),
+            sportIcon: sportIcons[sport] || '🏆',
+            location: location,
+            city: city,
+            date: date,
+            fee: fee,
+            prizePool: prizePool,
+            currentSlots: 0,
+            maxSlots: maxSlots,
+            color: sportColors[sport] || '#22c55e',
+            bg: 'rgba(255,255,255,0.05)'
+        };
+
+        const btnSubmit = document.getElementById('btn-submit-event');
+        btnSubmit.textContent = 'Menyimpan...';
+        btnSubmit.disabled = true;
+
+        setTimeout(() => {
+            tournamentEvents.unshift(newEvent);
+            localStorage.setItem('sparingin_tournament_events_v1', JSON.stringify(tournamentEvents));
+            
+            alert('Turnamen berhasil diterbitkan!');
+            document.getElementById('create-event-form').reset();
+            
+            btnSubmit.textContent = 'Terbitkan Turnamen';
+            btnSubmit.disabled = false;
+            
+            switchEventTab('join');
+        }, 1000);
+    };
