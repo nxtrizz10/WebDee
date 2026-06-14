@@ -116,41 +116,9 @@ const PageEvent = `
                         <input type="text" id="ce-organizer" required placeholder="Contoh: Bintaro Hoops Club" style="width: 100%; padding: 0.8rem; border-radius: var(--radius-md); background: #1a1a1a; border: 1px solid var(--border); color: #fff;">
                     </div>
                     
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
-                        <div class="form-group">
-                            <label style="display: block; margin-bottom: 0.5rem; color: var(--text-secondary); font-weight: 600;">Olahraga</label>
-                            <select id="ce-sport" required style="width: 100%; padding: 0.8rem; border-radius: var(--radius-md); background: #1a1a1a; border: 1px solid var(--border); color: #fff;">
-                                <option value="Futsal">Futsal</option>
-                                <option value="Basket">Basket</option>
-                                <option value="Badminton">Badminton</option>
-                                <option value="Padel">Padel</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label style="display: block; margin-bottom: 0.5rem; color: var(--text-secondary); font-weight: 600;">Kota</label>
-                            <select id="ce-city" required style="width: 100%; padding: 0.8rem; border-radius: var(--radius-md); background: #1a1a1a; border: 1px solid var(--border); color: #fff;">
-                                <option value="Ciledug">Ciledug</option>
-                                <option value="Bintaro">Bintaro</option>
-                                <option value="Jakarta Selatan">Jakarta Selatan</option>
-                                <option value="Jakarta Pusat">Jakarta Pusat</option>
-                            </select>
-                        </div>
-                    </div>
-
                     <div class="form-group" style="margin-bottom: 1rem;">
-                        <label style="display: block; margin-bottom: 0.5rem; color: var(--text-secondary); font-weight: 600;">Lokasi / Venue</label>
-                        <input type="text" id="ce-location" required placeholder="Contoh: AM Bintaro Court" style="width: 100%; padding: 0.8rem; border-radius: var(--radius-md); background: #1a1a1a; border: 1px solid var(--border); color: #fff;">
-                    </div>
-                    
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
-                        <div class="form-group">
-                            <label style="display: block; margin-bottom: 0.5rem; color: var(--text-secondary); font-weight: 600;">Tanggal</label>
-                            <input type="text" id="ce-date" required placeholder="Misal: Sabtu, 15 Ags 2026" style="width: 100%; padding: 0.8rem; border-radius: var(--radius-md); background: #1a1a1a; border: 1px solid var(--border); color: #fff;">
-                        </div>
-                        <div class="form-group">
-                            <label style="display: block; margin-bottom: 0.5rem; color: var(--text-secondary); font-weight: 600;">Kuota Tim/Peserta</label>
-                            <input type="number" id="ce-max-slots" required placeholder="Contoh: 16" min="2" max="64" style="width: 100%; padding: 0.8rem; border-radius: var(--radius-md); background: #1a1a1a; border: 1px solid var(--border); color: #fff;">
-                        </div>
+                        <label style="display: block; margin-bottom: 0.5rem; color: var(--text-secondary); font-weight: 600;">Kuota Tim/Peserta</label>
+                        <input type="number" id="ce-max-slots" required placeholder="Contoh: 16" min="2" max="64" style="width: 100%; padding: 0.8rem; border-radius: var(--radius-md); background: #1a1a1a; border: 1px solid var(--border); color: #fff;">
                     </div>
 
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
@@ -164,7 +132,7 @@ const PageEvent = `
                         </div>
                     </div>
 
-                    <button type="submit" class="btn-tourney-join" style="width: 100%;" id="btn-submit-event">Terbitkan Turnamen</button>
+                    <button type="submit" class="btn-tourney-join" style="width: 100%;" id="btn-submit-event">Booking Lapangan</button>
                 </form>
             </div>
         </div>

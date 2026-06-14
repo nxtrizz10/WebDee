@@ -97,6 +97,9 @@
         // Reset states when entering specific pages
         if (page === 'booking') {
             if (typeof resetBooking === 'function') resetBooking();
+        } else if (page !== 'event') {
+            // Cancel pending tournament creation if navigating elsewhere
+            localStorage.removeItem('sparingin_pending_tournament');
         }
         if (page === 'cari-lawan') {
             if (typeof cancelMabarCheckout === 'function') cancelMabarCheckout(true);
@@ -674,7 +677,13 @@
 
         const duration = selectedTimes.length || 1; // Default to 1 if none selected to show base price
         document.getElementById('summary-duration').textContent = duration + ' Jam';
-        document.getElementById('summary-price-label').textContent = 'Sewa Lapangan (' + duration + ' jam)';
+        
+        const pendingTournament = JSON.parse(localStorage.getItem('sparingin_pending_tournament'));
+        if (pendingTournament) {
+            document.getElementById('summary-price-label').textContent = 'Event Turnamen: ' + pendingTournament.title;
+        } else {
+            document.getElementById('summary-price-label').textContent = 'Sewa Lapangan (' + duration + ' jam)';
+        }
 
         const base  = (prices[selectedField] || 150000) * duration;
         const total = base + serviceFee;
@@ -721,6 +730,9 @@
         });
         localStorage.setItem('sparingin_bookings', JSON.stringify(existingBookings));
 
+        const pendingTournament = JSON.parse(localStorage.getItem('sparingin_pending_tournament'));
+        const isTournament = !!pendingTournament;
+
         // Save invoice to Transaction History
         const historyKey = 'sparingin_history_' + currentEmail;
         let transactionHistory = JSON.parse(localStorage.getItem(historyKey) || '[]');
@@ -731,9 +743,38 @@
             field: fieldNames[selectedField],
             schedule: ds + ', ' + timeStr,
             total: fmt(total),
-            timestamp: now.getTime()
+            timestamp: now.getTime(),
+            type: isTournament ? ('Event: ' + pendingTournament.title) : 'Booking Lapangan'
         });
         localStorage.setItem(historyKey, JSON.stringify(transactionHistory));
+
+        if (isTournament) {
+            const sportIcons = { 'Futsal': '⚽', 'Basket': '🏀', 'Badminton': '🏸', 'Padel': '🎾' };
+            
+            // Find city based on selectedLocation matching venuesDB
+            let detectedCity = 'Jakarta';
+            const matchedVenue = venuesDB.find(v => v.name === selectedLocation);
+            if (matchedVenue) {
+                if (matchedVenue.region === 'ciledug') detectedCity = 'Ciledug';
+                else if (matchedVenue.region === 'upj') detectedCity = 'Bintaro';
+                else if (matchedVenue.region === 'jaksel') detectedCity = 'Jakarta Selatan';
+                else if (matchedVenue.region === 'jakpus') detectedCity = 'Jakarta Pusat';
+            }
+
+            const newEvent = {
+                ...pendingTournament,
+                sport: selectedSport,
+                sportRaw: selectedSport.toLowerCase(),
+                sportIcon: sportIcons[selectedSport] || '🏆',
+                location: selectedLocation,
+                city: detectedCity,
+                date: ds
+            };
+
+            tournamentEvents.unshift(newEvent);
+            localStorage.setItem('sparingin_tournament_events_v2', JSON.stringify(tournamentEvents));
+            localStorage.removeItem('sparingin_pending_tournament');
+        }
 
         goToStep(4);
     }
@@ -1309,9 +1350,12 @@
                                 <span class="tourney-grid-icon">📅</span> ${t.date}
                             </div>
                             <div class="tourney-grid-item">
-                                <span class="tourney-grid-icon">👥</span> ${t.currentSlots}/${t.maxSlots} ${regTypeLabel}
+                                <span class="tourney-grid-icon">🎟️</span> Rp ${t.fee.toLocaleString('id-ID')}
                             </div>
                             <div class="tourney-grid-item">
+                                <span class="tourney-grid-icon">👥</span> ${t.currentSlots}/${t.maxSlots} ${regTypeLabel}
+                            </div>
+                            <div class="tourney-grid-item" style="grid-column: 1 / -1;">
                                 <span class="tourney-grid-icon">📍</span> ${t.location}
                             </div>
                         </div>
@@ -1526,7 +1570,7 @@
         
         // Tambah kuota (simulasi)
         event.currentSlots += 1;
-        localStorage.setItem('sparingin_tournament_events_v1', JSON.stringify(tournamentEvents));
+        localStorage.setItem('sparingin_tournament_events_v2', JSON.stringify(tournamentEvents));
         
         if(typeof renderTournaments === 'function') renderTournaments();
     };
@@ -1588,6 +1632,48 @@
     };
 
 
+    window.toggleCd = function(el) {
+        // Prevent event from bubbling up to document click listener
+        if (event) {
+            event.stopPropagation();
+        }
+        document.querySelectorAll('.cd-list').forEach(list => {
+            if (list !== el.nextElementSibling) list.classList.remove('show');
+        });
+        if (el.nextElementSibling) {
+            el.nextElementSibling.classList.toggle('show');
+        }
+    };
+
+    // Close dropdowns when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.custom-dropdown-container')) {
+            document.querySelectorAll('.cd-list.show').forEach(list => {
+                list.classList.remove('show');
+            });
+        }
+    });
+
+    window.setCreateTourneySport = function(sport, element) {
+        document.getElementById('ce-sport-val').textContent = sport;
+        if (element) {
+            const siblings = element.parentElement.querySelectorAll('.cd-option');
+            siblings.forEach(el => el.classList.remove('selected'));
+            element.classList.add('selected');
+            element.parentElement.classList.remove('show');
+        }
+    };
+
+    window.setCreateTourneyCity = function(city, element) {
+        document.getElementById('ce-city-val').textContent = city;
+        if (element) {
+            const siblings = element.parentElement.querySelectorAll('.cd-option');
+            siblings.forEach(el => el.classList.remove('selected'));
+            element.classList.add('selected');
+            element.parentElement.classList.remove('show');
+        }
+    };
+
     window.handleCreateTournament = function(e) {
         e.preventDefault();
         
@@ -1599,48 +1685,33 @@
 
         const title = document.getElementById('ce-title').value;
         const organizer = document.getElementById('ce-organizer').value;
-        const sport = document.getElementById('ce-sport').value;
-        const city = document.getElementById('ce-city').value;
-        const location = document.getElementById('ce-location').value;
-        const date = document.getElementById('ce-date').value;
         const maxSlots = parseInt(document.getElementById('ce-max-slots').value);
         const fee = parseInt(document.getElementById('ce-fee').value);
         const prizePool = parseInt(document.getElementById('ce-prize').value);
 
-        const sportIcons = { 'Futsal': '⚽', 'Basket': '🏀', 'Badminton': '🏸', 'Padel': '🎾' };
-        
-        const newEvent = {
+        const pendingEvent = {
             id: 't_user_' + Math.random().toString(36).substr(2, 6),
             title: title,
             organizer: organizer,
-            sport: sport,
-            sportRaw: sport.toLowerCase(),
-            sportIcon: sportIcons[sport] || '🏆',
-            location: location,
-            city: city,
-            date: date,
             fee: fee,
             prizePool: prizePool,
-            currentSlots: 0,
-            maxSlots: maxSlots
+            maxSlots: maxSlots,
+            currentSlots: 0
         };
 
         const btnSubmit = document.getElementById('btn-submit-event');
-        btnSubmit.textContent = 'Menyimpan...';
+        btnSubmit.textContent = 'Mengarahkan...';
         btnSubmit.disabled = true;
 
         setTimeout(() => {
-            tournamentEvents.unshift(newEvent);
-            localStorage.setItem('sparingin_tournament_events_v1', JSON.stringify(tournamentEvents));
+            localStorage.setItem('sparingin_pending_tournament', JSON.stringify(pendingEvent));
             
-            alert('Turnamen berhasil diterbitkan!');
             document.getElementById('create-event-form').reset();
-            
-            btnSubmit.textContent = 'Terbitkan Turnamen';
+            btnSubmit.textContent = 'Booking Lapangan';
             btnSubmit.disabled = false;
-            
             toggleCreateEventForm();
-            switchTourneyTab('open');
-            renderTournaments();
-        }, 1000);
+            
+            // Arahkan ke halaman booking tanpa alert
+            navigateTo('booking');
+        }, 800);
     };

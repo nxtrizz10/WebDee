@@ -325,13 +325,7 @@ function switchCariLawanTab(tabName) {
     }
 }
 
-function toggleCd(el) {
-    // Close other dropdowns
-    document.querySelectorAll('.cd-list').forEach(list => {
-        if (list !== el.nextElementSibling) list.classList.remove('show');
-    });
-    el.nextElementSibling.classList.toggle('show');
-}
+
 
 let mabarFilters = { sport: 'Semua Cabang Olahraga', location: 'Semua Lokasi', level: 'Semua Level' };
 let currentCheckoutMabar = null;
