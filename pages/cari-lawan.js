@@ -184,7 +184,7 @@ const PageCariLawan = `
                                 <div class="pm-body">
                                     <div class="qris-box">
                                         <div style="width: 220px; height: 220px; overflow: hidden; border-radius: var(--radius-md); box-shadow: 0 4px 12px rgba(0,0,0,0.2); margin: 0 auto 1rem auto; position: relative; background: #fff;">
-                                            <img src="assets/images/qris_barcode.jpeg" alt="QRIS Barcode" style="position: absolute; width: 145%; top: 52%; left: 50%; transform: translate(-50%, -50%); max-width: none;">
+                                            <img src="assets/images/qris_barcode.jpeg" alt="QRIS Barcode" style="position: absolute; width: 160%; top: 56%; left: 50%; transform: translate(-50%, -50%); max-width: none;">
                                         </div>
                                         <p class="qris-instruction">Buka aplikasi <strong>M-Banking</strong> atau <strong>e-Wallet</strong> Anda, kemudian scan QR Code di atas.</p>
                                     </div>
