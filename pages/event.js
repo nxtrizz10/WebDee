@@ -121,7 +121,7 @@ const PageEvent = `
                         <input type="number" id="ce-max-slots" required placeholder="Contoh: 16" min="2" max="64" style="width: 100%; padding: 0.8rem; border-radius: var(--radius-md); background: #1a1a1a; border: 1px solid var(--border); color: #fff;">
                     </div>
 
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+                    <div class="ce-price-grid">
                         <div class="form-group">
                             <label style="display: block; margin-bottom: 0.5rem; color: var(--text-secondary); font-weight: 600;">Biaya Pendaftaran (Rp)</label>
                             <input type="number" id="ce-fee" required placeholder="Contoh: 150000" min="0" style="width: 100%; padding: 0.8rem; border-radius: var(--radius-md); background: #1a1a1a; border: 1px solid var(--border); color: #fff;">
