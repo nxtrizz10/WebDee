@@ -78,6 +78,32 @@ const venuesDB = [
         localStorage.setItem('sparingin_mabar_events_v8', JSON.stringify(mabarEvents));
     }
 
+    // Sparing Events Data
+    const defaultSparingEvents = [
+        // CILEDUG
+        { id: 's_cil_1', title: 'Sparing Ciledug FC', sport: 'Futsal', sportRaw: 'futsal', sportIcon: '⚽', location: 'Ciledug Futsal Center', city: 'Ciledug', date: 'Sabtu, 11 Jul 2026', time: '19:00 WIB', level: ['Intermediate'], price: 150000, currentPlayers: 1, maxPlayers: 2, color: '#22c55e', bg: 'rgba(34, 197, 94, 0.1)' },
+        { id: 's_cil_2', title: 'Ciledug Basket Club', sport: 'Basket', sportRaw: 'basket', sportIcon: '🏀', location: 'GOR Ciledug', city: 'Ciledug', date: 'Minggu, 12 Jul 2026', time: '16:00 WIB', level: ['Beginner'], price: 200000, currentPlayers: 1, maxPlayers: 2, color: '#ef4444', bg: 'rgba(239, 68, 68, 0.1)' },
+        
+        // BINTARO
+        { id: 's_bin_1', title: 'Bintaro Hoops 5v5', sport: 'Basket', sportRaw: 'basket', sportIcon: '🏀', location: 'Bintaro Jaya Arena', city: 'Bintaro', date: 'Minggu, 12 Jul 2026', time: '16:00 WIB', level: ['Beginner'], price: 200000, currentPlayers: 1, maxPlayers: 2, color: '#ef4444', bg: 'rgba(239, 68, 68, 0.1)' },
+        { id: 's_bin_2', title: 'Bintaro Futsal Sparing', sport: 'Futsal', sportRaw: 'futsal', sportIcon: '⚽', location: 'AM Bintaro Court', city: 'Bintaro', date: 'Jumat, 10 Jul 2026', time: '20:00 WIB', level: ['Intermediate', 'Beginner'], price: 180000, currentPlayers: 1, maxPlayers: 2, color: '#22c55e', bg: 'rgba(34, 197, 94, 0.1)' },
+        { id: 's_bin_3', title: 'Padel Bintaro Challenge', sport: 'Padel', sportRaw: 'padel', sportIcon: '🎾', location: 'Centro Padel Bintaro', city: 'Bintaro', date: 'Rabu, 08 Jul 2026', time: '18:00 WIB', level: ['Newbie'], price: 250000, currentPlayers: 1, maxPlayers: 2, color: '#f59e0b', bg: 'rgba(245, 158, 11, 0.1)' },
+
+        // JAKARTA SELATAN
+        { id: 's_js_1', title: 'Jaksel Futsal Inter', sport: 'Futsal', sportRaw: 'futsal', sportIcon: '⚽', location: 'Kuningan Futsal', city: 'Jakarta Selatan', date: 'Kamis, 09 Jul 2026', time: '21:00 WIB', level: ['Intermediate'], price: 250000, currentPlayers: 1, maxPlayers: 2, color: '#22c55e', bg: 'rgba(34, 197, 94, 0.1)' },
+        { id: 's_js_2', title: 'Badmin Sparing Jaksel', sport: 'Badminton', sportRaw: 'badmin', sportIcon: '🏸', location: 'Cilandak Badmin', city: 'Jakarta Selatan', date: 'Selasa, 14 Jul 2026', time: '20:00 WIB', level: ['Beginner', 'Intermediate'], price: 100000, currentPlayers: 1, maxPlayers: 2, color: '#a855f7', bg: 'rgba(168, 85, 247, 0.1)' },
+
+        // JAKARTA PUSAT
+        { id: 's_jp_1', title: 'GBK Badmin Clash', sport: 'Badminton', sportRaw: 'badmin', sportIcon: '🏸', location: 'GBK Arena Badminton', city: 'Jakarta Pusat', date: 'Sabtu, 11 Jul 2026', time: '18:00 WIB', level: ['Intermediate'], price: 120000, currentPlayers: 1, maxPlayers: 2, color: '#a855f7', bg: 'rgba(168, 85, 247, 0.1)' },
+        { id: 's_jp_2', title: 'Monas Futsal Battle', sport: 'Futsal', sportRaw: 'futsal', sportIcon: '⚽', location: 'Monas Futsal', city: 'Jakarta Pusat', date: 'Senin, 13 Jul 2026', time: '19:00 WIB', level: ['Beginner'], price: 200000, currentPlayers: 1, maxPlayers: 2, color: '#22c55e', bg: 'rgba(34, 197, 94, 0.1)' },
+    ];
+
+    let sparingEvents = JSON.parse(localStorage.getItem('sparingin_sparing_events_v1'));
+    if (!sparingEvents) {
+        sparingEvents = defaultSparingEvents;
+        localStorage.setItem('sparingin_sparing_events_v1', JSON.stringify(sparingEvents));
+    }
+
     // Tournament Events Data
     const defaultTournamentEvents = [
         // FAVORITE / FEATURED (isFav: true)

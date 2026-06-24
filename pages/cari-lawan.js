@@ -288,15 +288,112 @@ const PageCariLawan = `
                 </div>
             </div>
         </div>
-        </div>
 
         <!-- SPARING TAB CONTENT -->
-        <div id="tab-content-sparing" style="display: none; padding: 80px 20px; text-align: center;">
-            <div style="font-size: 4rem; margin-bottom: 1.5rem;">🚧</div>
-            <h2 style="font-size: 2rem; margin-bottom: 1rem; background: linear-gradient(135deg, var(--accent), #fff); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Fitur Sparing Coming Soon!</h2>
-            <p style="color: var(--text-secondary); font-size: 1.1rem; max-width: 600px; margin: 0 auto; line-height: 1.6;">
-                Kami sedang menyiapkan fitur Sparing di mana tim kamu bisa menantang tim lain secara kompetitif. Siapkan skuad terbaikmu karena fitur ini akan segera hadir!
-            </p>
+        <div id="tab-content-sparing" style="display: none;">
+            
+            <!-- Filters -->
+            <div style="display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap;">
+                
+                <div class="custom-dropdown-container">
+                    <div class="cd-header" onclick="toggleCd(this)">
+                        <span class="cd-title" id="filter-sparing-sport">Semua Cabang Olahraga</span>
+                        <span class="cd-arrow">▼</span>
+                    </div>
+                    <div class="cd-list">
+                        <div class="cd-option selected" onclick="selectCd(this, 'Semua Cabang Olahraga', 'sparing-sport')">Semua Cabang Olahraga</div>
+                        <div class="cd-option" onclick="selectCd(this, 'Futsal', 'sparing-sport')">Futsal</div>
+                        <div class="cd-option" onclick="selectCd(this, 'Basket', 'sparing-sport')">Basket</div>
+                        <div class="cd-option" onclick="selectCd(this, 'Badminton', 'sparing-sport')">Badminton</div>
+                        <div class="cd-option" onclick="selectCd(this, 'Padel', 'sparing-sport')">Padel</div>
+                    </div>
+                </div>
+
+                <div class="custom-dropdown-container">
+                    <div class="cd-header" onclick="toggleCd(this)">
+                        <span class="cd-title" id="filter-sparing-location">Semua Lokasi</span>
+                        <span class="cd-arrow">▼</span>
+                    </div>
+                    <div class="cd-list">
+                        <div class="cd-option selected" onclick="selectCd(this, 'Semua Lokasi', 'sparing-location')">Semua Lokasi</div>
+                        <div class="cd-option" onclick="selectCd(this, 'Ciledug', 'sparing-location')">Ciledug</div>
+                        <div class="cd-option" onclick="selectCd(this, 'Bintaro', 'sparing-location')">Bintaro</div>
+                        <div class="cd-option" onclick="selectCd(this, 'Jakarta Pusat', 'sparing-location')">Jakarta Pusat</div>
+                        <div class="cd-option" onclick="selectCd(this, 'Jakarta Selatan', 'sparing-location')">Jakarta Selatan</div>
+                    </div>
+                </div>
+
+                <div class="custom-dropdown-container">
+                    <div class="cd-header" onclick="toggleCd(this)">
+                        <span class="cd-title" id="filter-sparing-level">Semua Level</span>
+                        <span class="cd-arrow">▼</span>
+                    </div>
+                    <div class="cd-list">
+                        <div class="cd-option selected" onclick="selectCd(this, 'Semua Level', 'sparing-level')">Semua Level</div>
+                        <div class="cd-option" onclick="selectCd(this, 'Newbie', 'sparing-level')">Newbie</div>
+                        <div class="cd-option" onclick="selectCd(this, 'Beginner', 'sparing-level')">Beginner</div>
+                        <div class="cd-option" onclick="selectCd(this, 'Intermediate', 'sparing-level')">Intermediate</div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Sparing Match Feed Grid -->
+            <div id="sparing-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.5rem;">
+                
+                <!-- Dummy Card 1 -->
+                <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 1.5rem; transition: 0.3s;" onmouseover="this.style.borderColor='var(--primary)'" onmouseout="this.style.borderColor='var(--border)'">
+                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem;">
+                        <div>
+                            <span style="background: rgba(34, 197, 94, 0.1); color: #4ade80; padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.75rem; font-weight: 600; border: 1px solid rgba(74, 222, 128, 0.2); text-transform: uppercase;">Futsal</span>
+                            <h3 style="margin: 0.5rem 0 0.25rem 0; font-size: 1.25rem;">Sparing Ciledug FC</h3>
+                        </div>
+                        <div style="text-align: right;">
+                            <div style="font-size: 1.25rem; font-weight: 800; color: var(--accent);">Rp 150k</div>
+                            <span style="font-size: 0.75rem; color: var(--text-secondary);">/ tim</span>
+                        </div>
+                    </div>
+                    
+                    <div style="display: flex; flex-direction: column; gap: 0.5rem; color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1.5rem;">
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">📍 <span style="color: var(--text-primary);">Ciledug Futsal Center</span></div>
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">🕒 <span style="color: var(--text-primary);">Sabtu, 19:00 WIB</span></div>
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">👥 <span style="color: var(--text-primary);">Dicari: 1 Tim Lawan</span></div>
+                    </div>
+
+                    <div style="display: flex; gap: 0.5rem; margin-bottom: 1.5rem; flex-wrap: wrap;">
+                        <span style="background: rgba(255,255,255,0.05); border: 1px solid var(--border); padding: 0.3rem 0.8rem; border-radius: 6px; font-size: 0.8rem;">Intermediate</span>
+                    </div>
+
+                    <button style="width: 100%; padding: 0.8rem; background: var(--primary); color: #fff; border: none; border-radius: var(--radius-md); font-weight: 600; font-size: 1rem; cursor: pointer; transition: 0.3s;" onmouseover="this.style.background='var(--primary-light)'" onmouseout="this.style.background='var(--primary)'">Tantang Tim</button>
+                </div>
+
+                <!-- Dummy Card 2 -->
+                <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 1.5rem; transition: 0.3s;" onmouseover="this.style.borderColor='var(--primary)'" onmouseout="this.style.borderColor='var(--border)'">
+                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem;">
+                        <div>
+                            <span style="background: rgba(249, 115, 22, 0.1); color: #fb923c; padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.75rem; font-weight: 600; border: 1px solid rgba(251, 146, 60, 0.2); text-transform: uppercase;">Basket</span>
+                            <h3 style="margin: 0.5rem 0 0.25rem 0; font-size: 1.25rem;">Bintaro Hoops 5v5</h3>
+                        </div>
+                        <div style="text-align: right;">
+                            <div style="font-size: 1.25rem; font-weight: 800; color: var(--accent);">Rp 200k</div>
+                            <span style="font-size: 0.75rem; color: var(--text-secondary);">/ tim</span>
+                        </div>
+                    </div>
+                    
+                    <div style="display: flex; flex-direction: column; gap: 0.5rem; color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1.5rem;">
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">📍 <span style="color: var(--text-primary);">Bintaro Jaya Arena</span></div>
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">🕒 <span style="color: var(--text-primary);">Minggu, 16:00 WIB</span></div>
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">👥 <span style="color: var(--text-primary);">Dicari: 1 Tim Lawan</span></div>
+                    </div>
+
+                    <div style="display: flex; gap: 0.5rem; margin-bottom: 1.5rem; flex-wrap: wrap;">
+                        <span style="background: rgba(255,255,255,0.05); border: 1px solid var(--border); padding: 0.3rem 0.8rem; border-radius: 6px; font-size: 0.8rem;">Beginner</span>
+                    </div>
+
+                    <button style="width: 100%; padding: 0.8rem; background: var(--primary); color: #fff; border: none; border-radius: var(--radius-md); font-weight: 600; font-size: 1rem; cursor: pointer; transition: 0.3s;" onmouseover="this.style.background='var(--primary-light)'" onmouseout="this.style.background='var(--primary)'">Tantang Tim</button>
+                </div>
+
+            </div>
         </div>
 
     </div>
@@ -385,6 +482,59 @@ function renderMabarFeed() {
     }).join('');
 }
 
+let sparingFilters = { sport: 'Semua Cabang Olahraga', location: 'Semua Lokasi', level: 'Semua Level' };
+
+function renderSparingFeed() {
+    const grid = document.getElementById('sparing-grid');
+    if(!grid) return;
+    
+    let filtered = sparingEvents;
+    if (sparingFilters.sport !== 'Semua Cabang Olahraga') {
+        filtered = filtered.filter(m => m.sport.toLowerCase() === sparingFilters.sport.toLowerCase());
+    }
+    if (sparingFilters.location !== 'Semua Lokasi') {
+        filtered = filtered.filter(m => m.city.toLowerCase() === sparingFilters.location.toLowerCase() || m.location.toLowerCase().includes(sparingFilters.location.toLowerCase()));
+    }
+    if (sparingFilters.level !== 'Semua Level') {
+        filtered = filtered.filter(m => m.level.map(l=>l.toLowerCase()).includes(sparingFilters.level.toLowerCase()));
+    }
+
+    if (filtered.length === 0) {
+        grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 3rem; color: var(--text-secondary);">Tidak ada jadwal sparing yang sesuai filter.</div>';
+        return;
+    }
+
+    grid.innerHTML = filtered.map(m => {
+        let levelBadges = m.level.map(l => `<span style="background: rgba(255,255,255,0.05); border: 1px solid var(--border); padding: 0.3rem 0.8rem; border-radius: 6px; font-size: 0.8rem;">${l}</span>`).join('');
+        return `
+            <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 1.5rem; transition: 0.3s;" onmouseover="this.style.borderColor='var(--primary)'" onmouseout="this.style.borderColor='var(--border)'">
+                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem;">
+                    <div>
+                        <span style="background: ${m.bg}; color: ${m.color}; padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.75rem; font-weight: 600; border: 1px solid ${m.color}33; text-transform: uppercase;">${m.sport}</span>
+                        <h3 style="margin: 0.5rem 0 0.25rem 0; font-size: 1.25rem;">${m.title}</h3>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="font-size: 1.25rem; font-weight: 800; color: var(--accent);">Rp ${m.price/1000}k</div>
+                        <span style="font-size: 0.75rem; color: var(--text-secondary);">/ tim</span>
+                    </div>
+                </div>
+                
+                <div style="display: flex; flex-direction: column; gap: 0.5rem; color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1.5rem;">
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">📍 <span style="color: var(--text-primary);">${m.location}</span></div>
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">🕒 <span style="color: var(--text-primary);">${m.date}, ${m.time}</span></div>
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">👥 <span style="color: var(--text-primary);">Dicari: ${m.currentPlayers} Tim Lawan</span></div>
+                </div>
+
+                <div style="display: flex; gap: 0.5rem; margin-bottom: 1.5rem; flex-wrap: wrap;">
+                    ${levelBadges}
+                </div>
+
+                <button style="width: 100%; padding: 0.8rem; background: var(--primary); color: #fff; border: none; border-radius: var(--radius-md); font-weight: 600; font-size: 1rem; cursor: pointer; transition: 0.3s;" onmouseover="this.style.background='var(--primary-light)'" onmouseout="this.style.background='var(--primary)'">Tantang Tim</button>
+            </div>
+        `;
+    }).join('');
+}
+
 function selectCd(el, val, type) {
     const list = el.parentElement;
     const header = list.previousElementSibling.querySelector('.cd-title');
@@ -401,6 +551,10 @@ function selectCd(el, val, type) {
                 window.eventFilters[eventType] = val;
                 if (typeof window.renderTournaments === 'function') window.renderTournaments();
             }
+        } else if (type.startsWith('sparing-')) {
+            const sparingType = type.replace('sparing-', '');
+            sparingFilters[sparingType] = val;
+            renderSparingFeed();
         } else {
             mabarFilters[type] = val;
             renderMabarFeed();
@@ -409,6 +563,7 @@ function selectCd(el, val, type) {
 }
 
 window.setMabarLocationFilter = function(city) {
+    // Update Mabar Location Filter
     const list = document.querySelector('#filter-location').parentElement.nextElementSibling;
     if (list) {
         const options = list.querySelectorAll('.cd-option');
@@ -422,10 +577,29 @@ window.setMabarLocationFilter = function(city) {
     }
     mabarFilters.location = city;
     renderMabarFeed();
+
+    // Update Sparing Location Filter
+    const filterSparingEl = document.querySelector('#filter-sparing-location');
+    if (filterSparingEl) {
+        const listSparing = filterSparingEl.parentElement.nextElementSibling;
+        if (listSparing) {
+            const optionsSparing = listSparing.querySelectorAll('.cd-option');
+            optionsSparing.forEach(opt => {
+                opt.classList.remove('selected');
+                if (opt.textContent.trim() === city) {
+                    opt.classList.add('selected');
+                    filterSparingEl.textContent = city;
+                }
+            });
+        }
+    }
+    sparingFilters.location = city;
+    renderSparingFeed();
 }
 
 window.renderMabarFeedInit = function() {
     renderMabarFeed();
+    renderSparingFeed();
 }
 
 window.currentMabarQty = 1;

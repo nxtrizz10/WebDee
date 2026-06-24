@@ -105,6 +105,13 @@
             if (typeof cancelMabarCheckout === 'function') cancelMabarCheckout(true);
         }
         if (page === 'event') {
+            // Reset create form state — always show list view when navigating to Event
+            const evListContainer = document.getElementById('event-list-container');
+            const evCreateContainer = document.getElementById('event-create-container');
+            const evHeader = document.getElementById('event-main-header');
+            if (evCreateContainer) evCreateContainer.style.display = 'none';
+            if (evListContainer) evListContainer.style.display = 'block';
+            if (evHeader) evHeader.style.display = 'flex';
             if (typeof renderTournaments === 'function') renderTournaments();
         }
         
